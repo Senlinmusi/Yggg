@@ -1,12 +1,12 @@
 'use client'
-import { Canvas } from '@react-three/fiber'
-import { OrbitControls, useGLTF } from '@react-three/drei'
+import dynamic from 'next/dynamic'
 import { useEffect } from 'react'
 
-function MX1() {
-  const { scene } = useGLTF('/yg.glb')
-  return <primitive object={scene} />
-}
+// 这里引用你改名后的文件
+const MX1 = dynamic(() => import('./MX1'), {
+  ssr: false,
+  loading: () => <div className="text-white">加载中...</div>
+})
 
 export default function YX1() {
   useEffect(() => {
@@ -14,13 +14,9 @@ export default function YX1() {
   }, [])
 
   return (
-    <div className="flex items-center justify-center w-screen h-screen bg-[#f0f0f0]">
-      <div className="w-[360px] h-[640px] bg-white shadow-lg">
-        <Canvas>
-          <ambientLight intensity={1} />
-          <MX1 />
-          <OrbitControls />
-        </Canvas>
+    <div className="flex items-center justify-center w-screen h-screen bg-black">
+      <div className="w-[360px] h-[640px] bg-white">
+        <MX1 />
       </div>
     </div>
   )
