@@ -1,8 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   webpack: (config) => {
-    config.cache = false
-    return config
+    config.experiments = { ...config.experiments, topLevelAwait: true };
+    return config;
+  },
+  experimental: {
+    webpackBuildWorker: false, 
   },
 }
 module.exports = nextConfig
