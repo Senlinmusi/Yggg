@@ -4,39 +4,34 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 
-export default function MX1({ FX1, CR1 }: { FX1: THREE.Vector3, CR1: any }) {
+export default function MX1({ FX1, controlsRef }: { FX1: THREE.Vector3, controlsRef: any }) {
   const { scene, animations } = useGLTF('/walk.glb')
   const { actions } = useAnimations(animations, scene)
   const XR1 = useRef<THREE.Group>(null)
   const { camera } = useThree()
 
-  scene.traverse((DX1) => {
-    if (DX1 instanceof THREE.Mesh) {
-      DX1.material = new THREE.MeshToonMaterial({
-        color: (DX1.material as THREE.MeshStandardMaterial).color,
-        map: (DX1.material as THREE.MeshStandardMaterial).map
-      })
-    }
-  })
-
-  useFrame((ZT1, SJ1) => {
+  useFrame((state, delta) => {
     if (!XR1.current) return
 
     if (FX1.length() > 0) {
-      const JD1 = Math.atan2(camera.position.x - XR1.current.position.x, camera.position.z - XR1.current.position.z)
-      const YD1 = FX1.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), JD1)
-      XR1.current.position.add(YD1.multiplyScalar(SJ1 * 3))
-      XR1.current.lookAt(XR1.current.position.clone().add(YD1))
+      const angle = Math.atan2(camera.position.x - XR1.current.position.x, camera.position.z - XR1.current.position.z)
+      const move = FX1.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), angle)
+      const step = move.multiplyScalar(delta * 3)
+      
+      XR1.current.position.add(step)
+      XR1.current.lookAt(XR1.current.position.clone().add(move))
+      camera.position.add(step)
     }
 
-    if (CR1.current) {
-      CR1.current.target.copy(XR1.current.position).setY(1.2)
+    if (controlsRef.current) {
+      controlsRef.current.target.set(XR1.current.position.x, XR1.current.position.y + 1.2, XR1.current.position.z)
+      controlsRef.current.update()
     }
   })
 
   useEffect(() => {
-    const DZ1 = actions[Object.keys(actions)[0]]
-    FX1.length() > 0 ? DZ1?.play() : DZ1?.stop()
+    const act = actions[Object.keys(actions)[0]]
+    FX1.length() > 0 ? act?.play() : act?.stop()
   }, [FX1, actions])
 
   return <primitive ref={XR1} object={scene} scale={1.2} />
