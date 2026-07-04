@@ -53,11 +53,11 @@ export default function MX1({ FX1, controlsRef }: { FX1: THREE.Vector3, controls
     const actW = A1[Object.keys(A1)[0]]
     const actI = A2[Object.keys(A2)[0]]
     if (ZT1) { 
-      actI?.stop() 
-      actW?.reset().play() 
+      actI?.fadeOut(0.3) 
+      actW?.reset().fadeIn(0.3).play() 
     } else { 
-      actW?.stop() 
-      actI?.reset().play() 
+      actW?.fadeOut(0.3) 
+      actI?.reset().fadeIn(0.3).play() 
     }
   }, [ZT1, A1, A2])
 

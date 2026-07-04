@@ -56,11 +56,11 @@ export default function YX1() {
       <div className="relative w-[360px] h-[640px] bg-white shadow-lg overflow-hidden">
         <Canvas shadows camera={{ position: [0, 3, 5], fov: 45 }}>
           <ambientLight intensity={0.6} />
-          <directionalLight position={[10, 10, 10]} intensity={1.5} castShadow shadow-mapSize={[1024, 1024]}>
-            <orthographicCamera attach="shadow-camera" args={[-20, 20, 20, -20]} />
+          <directionalLight position={[20, 20, 20]} intensity={1.5} castShadow shadow-mapSize={[2048, 2048]}>
+            <orthographicCamera attach="shadow-camera" args={[-50, 50, 50, -50, 0.1, 100]} />
           </directionalLight>
           <Environment preset="city" />
-          <Plane rotation={[-Math.PI / 2, 0, 0]} args={[100, 100]} receiveShadow>
+          <Plane rotation={[-Math.PI / 2, 0, 0]} args={[200, 200]} receiveShadow>
             <meshToonMaterial color="#fff" />
           </Plane>
           <MX1 FX1={FX1} controlsRef={CR1} />
@@ -76,20 +76,9 @@ export default function YX1() {
           />
         </Canvas>
 
-        <div className="absolute bottom-10 left-10 flex flex-col gap-6 z-50">
+        <div className="absolute bottom-10 left-10 flex items-center gap-6 z-50">
           <div 
-            className="w-24 h-6 bg-black/10 backdrop-blur-md rounded-full border border-white/30 relative touch-none"
-            onPointerDown={CZ4}
-            onPointerMove={CZ4}
-          >
-            <div 
-              className="absolute top-1/2 -translate-y-1/2 w-6 h-6 bg-white shadow-lg rounded-full"
-              style={{ left: `calc(${JD2 * 100}% - 12px)` }}
-            />
-          </div>
-
-          <div 
-            className="w-24 h-24 bg-black/10 backdrop-blur-md rounded-full border border-white/30 relative touch-none" 
+            className="w-24 h-24 bg-black/10 backdrop-blur-md rounded-full border border-white/30 relative touch-none shrink-0" 
             onPointerDown={CZ1}
             onPointerMove={CZ1} 
             onPointerUp={CZ2}
@@ -98,6 +87,17 @@ export default function YX1() {
             <div 
               className="absolute top-1/2 left-1/2 w-10 h-10 bg-white rounded-full shadow-lg" 
               style={{ transform: `translate(calc(-50% + ${XY1.x}px), calc(-50% + ${XY1.y}px))` }} 
+            />
+          </div>
+
+          <div 
+            className="w-48 h-8 bg-black/10 backdrop-blur-md rounded-full border border-white/30 relative touch-none"
+            onPointerDown={CZ4}
+            onPointerMove={CZ4}
+          >
+            <div 
+              className="absolute top-1/2 -translate-y-1/2 w-6 h-6 bg-white shadow-lg rounded-full"
+              style={{ left: `calc(${JD2 * 100}% - 12px)` }}
             />
           </div>
         </div>
