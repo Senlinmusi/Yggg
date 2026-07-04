@@ -15,7 +15,11 @@ export default function MX1({ FX1, controlsRef }: { FX1: THREE.Vector3, controls
   useEffect(() => {
     [M1.scene, M2.scene].forEach(s => s.traverse(c => {
       if (c instanceof THREE.Mesh) {
-        c.material = new THREE.MeshToonMaterial({ color: 0xffffff, map: (c.material as any).map })
+        c.material = new THREE.MeshToonMaterial({ 
+          color: 0xffffff, 
+          map: (c.material as any).map,
+          gradientMap: null 
+        })
         c.castShadow = true
       }
     }))
@@ -43,22 +47,24 @@ export default function MX1({ FX1, controlsRef }: { FX1: THREE.Vector3, controls
     }
   })
 
+  const ZT1 = FX1.length() > 0
+
   useEffect(() => {
     const actW = A1[Object.keys(A1)[0]]
     const actI = A2[Object.keys(A2)[0]]
-    if (FX1.length() > 0) { 
+    if (ZT1) { 
       actI?.stop() 
-      actW?.play() 
+      actW?.reset().play() 
     } else { 
       actW?.stop() 
-      actI?.play() 
+      actI?.reset().play() 
     }
-  }, [FX1, A1, A2])
+  }, [ZT1, A1, A2])
 
   return (
     <group ref={XR1} scale={1.2}>
-      <primitive object={M1.scene} visible={FX1.length() > 0} />
-      <primitive object={M2.scene} visible={FX1.length() === 0} />
+      <primitive object={M1.scene} visible={ZT1} />
+      <primitive object={M2.scene} visible={!ZT1} />
     </group>
   )
 }
