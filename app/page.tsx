@@ -26,7 +26,9 @@ export default function YX1() {
       <div className="relative w-full h-full max-w-[360px] max-h-[640px] bg-white shadow-lg overflow-hidden">
         <Canvas shadows camera={{ position: [0, 3, 5], fov: 45 }}>
           <ambientLight intensity={0.4} />
-          <directionalLight position={[5, 10, 5]} intensity={1.2} castShadow shadow-mapSize={[1024, 1024]} />
+          <directionalLight position={[5, 10, 5]} intensity={1.2} castShadow shadow-mapSize={[1024, 1024]}>
+            <orthographicCamera attach="shadow-camera" args={[-20, 20, 20, -20]} />
+          </directionalLight>
           <Environment preset="dawn" intensity={0.3} />
           <Plane rotation={[-Math.PI / 2, 0, 0]} args={[100, 100]} receiveShadow>
             <meshToonMaterial color="#fff" />
