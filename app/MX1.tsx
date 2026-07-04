@@ -29,19 +29,23 @@ export default function MX1({ FX1, controlsRef }: { FX1: THREE.Vector3, controls
   useFrame((state, delta) => {
     if (!XR1.current) return
 
-    if (FX1.length() > 0) {
-      const v = new THREE.Vector3(FX1.x, 0, FX1.z)
-      v.applyEuler(new THREE.Euler(0, camera.rotation.y, 0))
+    const len = FX1.length()
+    if (len > 0) {
+      const angle = Math.atan2(camera.position.x - XR1.current.position.x, camera.position.z - XR1.current.position.z)
+      const move = FX1.clone().normalize().applyAxisAngle(new THREE.Vector3(0, 1, 0), angle)
+      const step = move.multiplyScalar(delta * 3 * Math.min(len, 1))
       
-      XR1.current.position.add(v.multiplyScalar(delta * 3))
-      XR1.current.lookAt(XR1.current.position.clone().add(v))
+      XR1.current.position.add(step)
+      XR1.current.lookAt(XR1.current.position.clone().add(move))
       
       if (controlsRef.current) {
-        controlsRef.current.target.lerp(XR1.current.position, 0.1)
+        controlsRef.current.target.add(step)
       }
     }
 
-    if (controlsRef.current) controlsRef.current.update()
+    if (controlsRef.current) {
+      controlsRef.current.update()
+    }
   })
 
   useEffect(() => {
@@ -56,6 +60,10 @@ export default function MX1({ FX1, controlsRef }: { FX1: THREE.Vector3, controls
     }
   }, [FX1, DH1, DH2])
 
-  return <primitive ref={XR1} object={FX1.length() > 0 ? MX2.scene : MX3.scene} scale={1.2} />
+  return (
+    <group ref={XR1} scale={1.2}>
+      <primitive object={FX1.length() > 0 ? MX2.scene : MX3.scene} />
+    </group>
+  )
 }
 
