@@ -5,65 +5,46 @@ import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 
 export default function MX1({ FX1, controlsRef }: { FX1: THREE.Vector3, controlsRef: any }) {
-  const MX2 = useGLTF('/walk.glb')
-  const MX3 = useGLTF('/wait.glb')
-  const DH1 = useAnimations(MX2.animations, MX2.scene)
-  const DH2 = useAnimations(MX3.animations, MX3.scene)
+  const M1 = useGLTF('/walk.glb')
+  const M2 = useGLTF('/wait.glb')
+  const { actions: A1 } = useAnimations(M1.animations, M1.scene)
+  const { actions: A2 } = useAnimations(M2.animations, M2.scene)
   const XR1 = useRef<THREE.Group>(null)
   const { camera } = useThree()
 
   useEffect(() => {
-    [MX2.scene, MX3.scene].forEach((s) => {
-      s.traverse((c) => {
-        if (c instanceof THREE.Mesh) {
-          c.material = new THREE.MeshToonMaterial({
-            color: (c.material as THREE.MeshStandardMaterial).color,
-            map: (c.material as THREE.MeshStandardMaterial).map,
-          })
-          c.castShadow = true
-        }
-      })
-    })
-  }, [MX2, MX3])
+    [M1.scene, M2.scene].forEach(s => s.traverse(c => {
+      if (c instanceof THREE.Mesh) {
+        c.material = new THREE.MeshToonMaterial({ color: 0xffffff, map: (c.material as any).map })
+        c.castShadow = true
+      }
+    }))
+  }, [M1, M2])
 
   useFrame((state, delta) => {
     if (!XR1.current) return
-
-    const len = FX1.length()
-    if (len > 0) {
+    const isMoving = FX1.length() > 0
+    
+    if (isMoving) {
       const angle = Math.atan2(camera.position.x - XR1.current.position.x, camera.position.z - XR1.current.position.z)
-      const move = FX1.clone().normalize().applyAxisAngle(new THREE.Vector3(0, 1, 0), angle)
-      const step = move.multiplyScalar(delta * 3 * Math.min(len, 1))
-      
-      XR1.current.position.add(step)
-      XR1.current.lookAt(XR1.current.position.clone().add(move))
-      
-      if (controlsRef.current) {
-        controlsRef.current.target.add(step)
-      }
+      const dir = FX1.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), angle)
+      XR1.current.position.add(dir.multiplyScalar(delta * 3))
+      XR1.current.lookAt(XR1.current.position.clone().add(dir))
     }
 
     if (controlsRef.current) {
+      controlsRef.current.target.lerp(XR1.current.position.clone().add(new THREE.Vector3(0, 1.5, 0)), 0.2)
       controlsRef.current.update()
     }
   })
 
   useEffect(() => {
-    const act1 = DH1.actions[Object.keys(DH1.actions)[0]]
-    const act2 = DH2.actions[Object.keys(DH2.actions)[0]]
-    if (FX1.length() > 0) {
-      act2?.stop()
-      act1?.play()
-    } else {
-      act1?.stop()
-      act2?.play()
-    }
-  }, [FX1, DH1, DH2])
+    const actW = A1[Object.keys(A1)[0]]
+    const actI = A2[Object.keys(A2)[0]]
+    if (FX1.length() > 0) { actI?.stop(); actW?.play() } 
+    else { actW?.stop(); actI?.play() }
+  }, [FX1, A1, A2])
 
-  return (
-    <group ref={XR1} scale={1.2}>
-      <primitive object={FX1.length() > 0 ? MX2.scene : MX3.scene} />
-    </group>
-  )
+  return <primitive ref={XR1} object={FX1.length() > 0 ? M1.scene : M2.scene} scale={1.2} />
 }
 
