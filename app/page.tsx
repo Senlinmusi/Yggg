@@ -1,20 +1,29 @@
 'use client'
-import { useState } from 'react'
-import { Canvas } from '@react-three/fiber'
+import { useState, useRef } from 'react'
+import { Canvas, useFrame } from '@react-three/fiber'
 import { Environment, Plane, OrbitControls } from '@react-three/drei'
 import MX1 from './MX1'
 import * as THREE from 'three'
 
+function CameraController({ target }: { target: React.MutableRefObject<THREE.Vector3> }) {
+  const { camera } = useThree()
+  useFrame(() => {
+    camera.lookAt(target.current)
+  })
+  return null
+}
+
 export default function YX1() {
   const [FX1, SX1] = useState(new THREE.Vector3(0, 0, 0))
   const [XY1, SX2] = useState({ x: 0, y: 0 })
+  const TC1 = useRef(new THREE.Vector3(0, 0, 0))
 
   const CZ1 = (e: React.TouchEvent) => {
     const r = e.currentTarget.getBoundingClientRect()
-    const x = e.touches[0].clientX - r.left - 40
-    const y = e.touches[0].clientY - r.top - 40
-    SX2({ x: Math.max(-40, Math.min(40, x)), y: Math.max(-40, Math.min(40, y)) })
-    SX1(new THREE.Vector3(x / 40, 0, y / 40))
+    const x = (e.touches[0].clientX - r.left - 40) / 40
+    const y = (e.touches[0].clientY - r.top - 40) / 40
+    SX2({ x: Math.max(-40, Math.min(40, x * 40)), y: Math.max(-40, Math.min(40, y * 40)) })
+    SX1(new THREE.Vector3(x, 0, y))
   }
 
   const CZ2 = () => { SX2({ x: 0, y: 0 }); SX1(new THREE.Vector3(0, 0, 0)) }
@@ -22,15 +31,14 @@ export default function YX1() {
   return (
     <div className="flex items-center justify-center w-screen h-screen bg-[#f0f0f0] touch-none">
       <div className="relative w-full h-full max-w-[360px] max-h-[640px] bg-white shadow-lg overflow-hidden">
-        <Canvas camera={{ position: [0, 2, 3] }}>
+        <Canvas camera={{ position: [0, 3, 7] }}>
           <ambientLight intensity={0.5} />
           <Environment preset="city" />
           <Plane rotation={[-Math.PI / 2, 0, 0]} args={[100, 100]}>
             <meshStandardMaterial color="#fff" />
           </Plane>
           <MX1 FX1={FX1} />
-          {/* 焦点锁定，支持平滑缩放与旋转 */}
-          <OrbitControls target={[0, 1.5, 0]} maxDistance={5} minDistance={1.5} />
+          <OrbitControls target={[0, 1.5, 0]} enablePan={false} maxDistance={8} minDistance={2} />
         </Canvas>
 
         <div 
