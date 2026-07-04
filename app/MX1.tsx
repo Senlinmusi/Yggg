@@ -14,9 +14,10 @@ export default function MX1({ FX1, controlsRef }: { FX1: THREE.Vector3, controls
     scene.traverse((c) => {
       if (c instanceof THREE.Mesh) {
         c.material = new THREE.MeshToonMaterial({
+          color: (c.material as THREE.MeshStandardMaterial).color,
           map: (c.material as THREE.MeshStandardMaterial).map,
-          color: (c.material as THREE.MeshStandardMaterial).color
         })
+        c.castShadow = true
       }
     })
   }, [scene])
@@ -31,13 +32,13 @@ export default function MX1({ FX1, controlsRef }: { FX1: THREE.Vector3, controls
       
       XR1.current.position.add(step)
       XR1.current.lookAt(XR1.current.position.clone().add(move))
-      
       camera.position.add(step)
+      
       if (controlsRef.current) {
         controlsRef.current.target.add(step)
       }
     }
-    
+
     if (controlsRef.current) {
       controlsRef.current.update()
     }
