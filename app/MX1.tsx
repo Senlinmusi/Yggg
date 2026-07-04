@@ -10,6 +10,17 @@ export default function MX1({ FX1, controlsRef }: { FX1: THREE.Vector3, controls
   const XR1 = useRef<THREE.Group>(null)
   const { camera } = useThree()
 
+  useEffect(() => {
+    scene.traverse((c) => {
+      if (c instanceof THREE.Mesh) {
+        c.material = new THREE.MeshToonMaterial({
+          map: (c.material as THREE.MeshStandardMaterial).map,
+          color: (c.material as THREE.MeshStandardMaterial).color
+        })
+      }
+    })
+  }, [scene])
+
   useFrame((state, delta) => {
     if (!XR1.current) return
 
@@ -20,11 +31,14 @@ export default function MX1({ FX1, controlsRef }: { FX1: THREE.Vector3, controls
       
       XR1.current.position.add(step)
       XR1.current.lookAt(XR1.current.position.clone().add(move))
+      
       camera.position.add(step)
+      if (controlsRef.current) {
+        controlsRef.current.target.add(step)
+      }
     }
-
+    
     if (controlsRef.current) {
-      controlsRef.current.target.set(XR1.current.position.x, XR1.current.position.y + 1.2, XR1.current.position.z)
       controlsRef.current.update()
     }
   })
