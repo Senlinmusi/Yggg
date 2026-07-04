@@ -22,14 +22,15 @@ export default function YX1() {
   return (
     <div className="flex items-center justify-center w-screen h-screen bg-[#f0f0f0] touch-none">
       <div className="relative w-full h-full max-w-[360px] max-h-[640px] bg-white shadow-lg overflow-hidden">
-        <Canvas camera={{ position: [0, 2, 5] }}>
+        <Canvas camera={{ position: [0, 2, 3] }}>
           <ambientLight intensity={0.5} />
           <Environment preset="city" />
           <Plane rotation={[-Math.PI / 2, 0, 0]} args={[100, 100]}>
             <meshStandardMaterial color="#fff" />
           </Plane>
           <MX1 FX1={FX1} />
-          <OrbitControls enablePan={false} maxDistance={10} minDistance={2} />
+          {/* 焦点锁定，支持平滑缩放与旋转 */}
+          <OrbitControls target={[0, 1.5, 0]} maxDistance={5} minDistance={1.5} />
         </Canvas>
 
         <div 

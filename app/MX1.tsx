@@ -13,14 +13,12 @@ export default function MX1({ FX1 }: { FX1: THREE.Vector3 }) {
   useFrame((state, delta) => {
     if (!XR1.current) return
     if (FX1.length() > 0) {
-      const angle = Math.atan2(camera.position.x - XR1.current.position.x, camera.position.z - XR1.current.position.z)
-      const move = FX1.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), angle)
-      XR1.current.position.add(move.multiplyScalar(delta * 2))
-      XR1.current.lookAt(XR1.current.position.clone().add(move))
-      camera.position.x = XR1.current.position.x + 5 * Math.sin(angle)
-      camera.position.z = XR1.current.position.z + 5 * Math.cos(angle)
-      camera.lookAt(XR1.current.position)
+      const angle = Math.atan2(FX1.x, FX1.z)
+      XR1.current.rotation.y = angle
+      XR1.current.position.add(FX1.multiplyScalar(delta * 2))
     }
+    // 强制摄像机焦点位于人物上方 1.5 米处
+    camera.lookAt(XR1.current.position.clone().add(new THREE.Vector3(0, 1.5, 0)))
   })
 
   useEffect(() => {
