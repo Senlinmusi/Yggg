@@ -1,7 +1,7 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { Plane, OrbitControls, useGLTF } from '@react-three/drei'
+import { Plane, OrbitControls, useGLTF, useProgress } from '@react-three/drei'
 import dynamic from 'next/dynamic'
 import MX1 from './MX1'
 import * as THREE from 'three'
@@ -14,15 +14,14 @@ function YX2() {
   const CR1 = useRef<any>(null)
   const CJ1 = useGLTF('/cjjj.glb')
   const CJR1 = useRef<THREE.Group>(null)
+  const { active, progress } = useProgress()
 
   useEffect(() => {
     if (CJ1.scene) {
       CJ1.scene.traverse(c => {
         if (c instanceof THREE.Mesh) {
-          if (c.material) {
-            c.material.roughness = 0.2
-            c.material.metalness = 0.1
-          }
+          c.castShadow = true
+          c.receiveShadow = true
         }
       })
     }
@@ -64,17 +63,34 @@ function YX2() {
   }
 
   const angleY = Math.PI / 6 + JD1 * (Math.PI / 3)
-  const angleX = -Math.PI + JD2 * (Math.PI * 2)
+  // 映射调整：确保当 JD2 为 0.5 时，相机旋转 180 度正好对准角色后背
+  const angleX = JD2 * (Math.PI * 2)
 
   return (
     <div className="w-screen h-screen bg-[#050508] touch-none flex items-center justify-center">
       <title>1</title>
       <div className="relative w-[360px] h-[640px] bg-black shadow-lg overflow-hidden">
-        <Canvas camera={{ position: [0, 3, -5], fov: 45 }}>
-          <ambientLight intensity={0.05} color="#0a0a15" />
-          <directionalLight position={[15, 25, 15]} intensity={0.3} color="#334466" />
-          <Plane rotation={[-Math.PI / 2, 0, 0]} args={[200, 200]}>
-            <meshToonMaterial color="#050508" />
+        
+        {/* 白底黑条加载界面 */}
+        {active && (
+          <div className="absolute inset-0 bg-white z-[100] flex flex-col items-center justify-center gap-2">
+            <div className="w-40 h-1 bg-gray-200 rounded-full overflow-hidden">
+              <div 
+                className="bg-black h-full transition-all duration-100 ease-out" 
+                style={{ width: `${progress}%` }} 
+              />
+            </div>
+            <span className="text-black text-[10px] font-mono tracking-wider">{Math.round(progress)}%</span>
+          </div>
+        )}
+
+        <Canvas shadows camera={{ position: [0, 3, 5], fov: 45 }}>
+          {/* 恢复并平衡整体场景光照，确保清晰不发黑 */}
+          <ambientLight intensity={0.6} color="#ffffff" />
+          <directionalLight position={[10, 20, 10]} intensity={0.7} color="#ffffff" castShadow shadow-mapSize={[1024, 1024]} />
+          
+          <Plane rotation={[-Math.PI / 2, 0, 0]} args={[200, 200]} receiveShadow>
+            <meshStandardMaterial color="#111115" roughness={0.8} />
           </Plane>
           <primitive object={CJ1.scene} ref={CJR1} />
           <MX1 FX1={FX1} controlsRef={CR1} CJR1={CJR1} />
