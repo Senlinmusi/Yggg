@@ -18,10 +18,11 @@ function YX2() {
   useEffect(() => {
     document.title = '1'
     if (CJ1.scene) {
+      CJ1.scene.position.set(0, 0, 0)
       CJ1.scene.traverse(c => {
         if (c instanceof THREE.Mesh) {
           if (c.material) {
-            c.material.roughness = 0.4
+            c.material.roughness = 0.5
             c.material.metalness = 0.1
           }
         }
@@ -65,19 +66,19 @@ function YX2() {
   }
 
   const angleY = Math.PI / 6 + JD1 * (Math.PI / 3)
-  const angleX = JD2 * (Math.PI * 2)
+  const angleX = Math.PI - (JD2 * Math.PI * 2)
 
   return (
     <div className="flex items-center justify-center w-screen h-screen bg-[#f0f0f0]">
       <div className="relative w-full h-full max-w-[360px] max-h-[640px] aspect-[9/16] bg-[#050508] shadow-lg overflow-hidden">
         <Canvas 
           camera={{ position: [0, 3, -5], fov: 45 }}
-          gl={{ antialias: true, powerPreference: 'high-performance' }}
-          dpr={[1, 1.5]}
+          gl={{ antialias: false, powerPreference: 'high-performance', depth: true }}
+          dpr={1}
         >
-          <ambientLight intensity={0.4} color="#1a1a2e" />
-          <directionalLight position={[10, 20, 10]} intensity={1.2} color="#8fa0cc" />
-          <hemisphereLight args={['#111122', '#050510', 0.5]} />
+          <ambientLight intensity={0.6} color="#22223b" />
+          <directionalLight position={[10, 20, 10]} intensity={1.5} color="#9bb0ff" />
+          <hemisphereLight args={['#1a1a3a', '#080811', 0.8]} />
           <Plane rotation={[-Math.PI / 2, 0, 0]} args={[200, 200]}>
             <meshToonMaterial color="#050508" />
           </Plane>
@@ -85,7 +86,7 @@ function YX2() {
           <MX1 FX1={FX1} KZR1={KZR1} CJR1={CJR1} />
           <OrbitControls 
             ref={KZR1} 
-            target={[0, 1.5, 0]}
+            target={[0, 1, 0]}
             enablePan={false} 
             enableZoom={true}
             minPolarAngle={angleY} 
