@@ -11,7 +11,7 @@ function YX2() {
   const [XY1, SX2] = useState({ x: 0, y: 0 })
   const [JD1, SJ1] = useState(0.5)
   const [JD2, SJ2] = useState(0.5)
-  const CR1 = useRef<any>(null)
+  const KZR1 = useRef<any>(null)
   const CJ1 = useGLTF('/cjjj.glb')
   const CJR1 = useRef<THREE.Group>(null)
 
@@ -65,22 +65,27 @@ function YX2() {
   }
 
   const angleY = Math.PI / 6 + JD1 * (Math.PI / 3)
-  const angleX = (JD2 - 0.5) * Math.PI * 2
+  const angleX = JD2 * (Math.PI * 2)
 
   return (
     <div className="flex items-center justify-center w-screen h-screen bg-[#f0f0f0]">
-      <div className="relative w-full h-full max-w-[360px] max-h-[640px] aspect-[9/16] bg-white shadow-lg overflow-hidden">
-        <Canvas camera={{ position: [0, 4, -6], fov: 45 }} gl={{ antialias: true, powerPreference: 'high-performance', precision: 'mediump' }}>
-          <ambientLight intensity={0.8} color="#ffffff" />
-          <directionalLight position={[10, 20, 10]} intensity={0.7} color="#ffffff" />
+      <div className="relative w-full h-full max-w-[360px] max-h-[640px] aspect-[9/16] bg-[#050508] shadow-lg overflow-hidden">
+        <Canvas 
+          camera={{ position: [0, 3, -5], fov: 45 }}
+          gl={{ antialias: true, powerPreference: 'high-performance' }}
+          dpr={[1, 1.5]}
+        >
+          <ambientLight intensity={0.4} color="#1a1a2e" />
+          <directionalLight position={[10, 20, 10]} intensity={1.2} color="#8fa0cc" />
+          <hemisphereLight args={['#111122', '#050510', 0.5]} />
           <Plane rotation={[-Math.PI / 2, 0, 0]} args={[200, 200]}>
-            <meshStandardMaterial color="#fafafa" roughness={0.6} />
+            <meshToonMaterial color="#050508" />
           </Plane>
           <primitive object={CJ1.scene} ref={CJR1} />
-          <MX1 FX1={FX1} controlsRef={CR1} CJR1={CJR1} />
+          <MX1 FX1={FX1} KZR1={KZR1} CJR1={CJR1} />
           <OrbitControls 
-            ref={CR1} 
-            target={[0, 1.2, 0]}
+            ref={KZR1} 
+            target={[0, 1.5, 0]}
             enablePan={false} 
             enableZoom={true}
             minPolarAngle={angleY} 
@@ -92,37 +97,37 @@ function YX2() {
 
         <div className="absolute bottom-10 left-10 flex items-center gap-6 z-50">
           <div 
-            className="w-24 h-24 bg-black/5 backdrop-blur-md rounded-full border border-black/10 relative touch-none shrink-0" 
+            className="w-24 h-24 bg-white/5 backdrop-blur-md rounded-full border border-white/10 relative touch-none shrink-0" 
             onPointerDown={CZ1}
             onPointerMove={CZ1} 
             onPointerUp={CZ2}
             onPointerCancel={CZ2}
           >
             <div 
-              className="absolute top-1/2 left-1/2 w-10 h-10 bg-black/80 rounded-full shadow-lg" 
+              className="absolute top-1/2 left-1/2 w-10 h-10 bg-white/80 rounded-full shadow-lg" 
               style={{ transform: `translate(calc(-50% + ${XY1.x}px), calc(-50% + ${XY1.y}px))` }} 
             />
           </div>
 
           <div 
-            className="w-48 h-8 bg-black/5 backdrop-blur-md rounded-full border border-black/10 relative touch-none"
+            className="w-48 h-8 bg-white/5 backdrop-blur-md rounded-full border border-white/10 relative touch-none"
             onPointerDown={CZ4}
             onPointerMove={CZ4}
           >
             <div 
-              className="absolute top-1/2 -translate-y-1/2 w-6 h-6 bg-black/80 shadow-lg rounded-full"
+              className="absolute top-1/2 -translate-y-1/2 w-6 h-6 bg-white/80 shadow-lg rounded-full"
               style={{ left: `calc(${JD2 * 100}% - 12px)` }}
             />
           </div>
         </div>
 
         <div 
-          className="absolute right-6 top-1/2 -translate-y-1/2 w-8 h-48 bg-black/5 backdrop-blur-md rounded-full border border-black/10 z-50 touch-none"
+          className="absolute right-6 top-1/2 -translate-y-1/2 w-8 h-48 bg-white/5 backdrop-blur-md rounded-full border border-white/10 z-50 touch-none"
           onPointerDown={CZ3}
           onPointerMove={CZ3}
         >
           <div 
-            className="absolute left-1/2 -translate-x-1/2 w-6 h-6 bg-black/80 rounded-full shadow-lg"
+            className="absolute left-1/2 -translate-x-1/2 w-6 h-6 bg-white/80 rounded-full shadow-lg"
             style={{ top: `calc(${JD1 * 100}% - 12px)` }}
           />
         </div>

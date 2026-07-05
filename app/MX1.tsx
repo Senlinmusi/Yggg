@@ -4,22 +4,22 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 
-export default function MX1({ FX1, controlsRef, CJR1 }: { FX1: THREE.Vector3, controlsRef: any, CJR1: any }) {
+export default function MX1({ FX1, KZR1, CJR1 }: { FX1: THREE.Vector3, KZR1: any, CJR1: any }) {
   const M1 = useGLTF('/walk.glb')
   const M2 = useGLTF('/wait.glb')
   const { actions: A1 } = useAnimations(M1.animations, M1.scene)
   const { actions: A2 } = useAnimations(M2.animations, M2.scene)
   const XR1 = useRef<THREE.Group>(null)
+  const CS1 = useRef(true)
   const { camera } = useThree()
 
   useEffect(() => {
     [M1.scene, M2.scene].forEach(s => s.traverse(c => {
       if (c instanceof THREE.Mesh) {
-        c.material = new THREE.MeshStandardMaterial({ 
+        c.material = new THREE.MeshToonMaterial({ 
           color: 0xffffff, 
           map: (c.material as any).map,
-          roughness: 0.4,
-          metalness: 0.1
+          gradientMap: null 
         })
       }
     }))
@@ -31,30 +31,30 @@ export default function MX1({ FX1, controlsRef, CJR1 }: { FX1: THREE.Vector3, co
     if (FX1.length() > 0) {
       const angle = Math.atan2(camera.position.x - XR1.current.position.x, camera.position.z - XR1.current.position.z)
       const dir = FX1.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), angle)
-      const step = dir.multiplyScalar(delta * 4)
+      const step = dir.multiplyScalar(delta * 3)
       
-      const NP1 = XR1.current.position.clone().add(step)
-      
-      if (Math.abs(NP1.x) < 18 && Math.abs(NP1.z) < 18) {
-        let PZ1 = false
-        if (CJR1.current) {
-          const YC1 = new THREE.Raycaster(XR1.current.position.clone().add(new THREE.Vector3(0, 0.5, 0)), dir.clone().normalize(), 0, 0.6)
-          const JZ1 = YC1.intersectObjects(CJR1.current.children, true)
-          if (JZ1.length > 0) PZ1 = true
-        }
+      let PZ1 = false
+      if (CJR1.current) {
+        const YC1 = new THREE.Raycaster(XR1.current.position.clone().add(new THREE.Vector3(0, 0.5, 0)), dir.clone().normalize(), 0, 0.6)
+        const JZ1 = YC1.intersectObjects(CJR1.current.children, true)
+        if (JZ1.length > 0) PZ1 = true
+      }
 
-        if (!PZ1) {
+      if (!PZ1) {
+        const MB1 = XR1.current.position.clone().add(step)
+        if (Math.abs(MB1.x) < 45 && Math.abs(MB1.z) < 45) {
           XR1.current.position.add(step)
           camera.position.add(step)
-          if (controlsRef.current) {
-            controlsRef.current.target.add(step)
+          if (KZR1.current) {
+            KZR1.current.target.add(step)
           }
         }
       }
       XR1.current.lookAt(XR1.current.position.clone().add(dir))
     }
 
-    if (CJR1.current) {
+    if (CJR1.current && (FX1.length() > 0 || CS1.current)) {
+      CS1.current = false
       const YC2 = new THREE.Raycaster(XR1.current.position.clone().add(new THREE.Vector3(0, 5, 0)), new THREE.Vector3(0, -1, 0))
       const JZ2 = YC2.intersectObjects(CJR1.current.children, true)
       if (JZ2.length > 0) {
@@ -62,22 +62,22 @@ export default function MX1({ FX1, controlsRef, CJR1 }: { FX1: THREE.Vector3, co
       }
     }
 
-    if (controlsRef.current) {
-      controlsRef.current.update()
+    if (KZR1.current) {
+      KZR1.current.update()
     }
   })
 
   const ZT1 = FX1.length() > 0
 
   useEffect(() => {
-    const actW = A1[Object.keys(A1)[0]]
-    const actI = A2[Object.keys(A2)[0]]
+    const HD1 = A1[Object.keys(A1)[0]]
+    const HD2 = A2[Object.keys(A2)[0]]
     if (ZT1) { 
-      actI?.fadeOut(0.2) 
-      actW?.reset().fadeIn(0.2).play() 
+      HD2?.fadeOut(0.3) 
+      HD1?.reset().fadeIn(0.3).play() 
     } else { 
-      actW?.fadeOut(0.2) 
-      actI?.reset().fadeIn(0.2).play() 
+      HD1?.fadeOut(0.3) 
+      HD2?.reset().fadeIn(0.3).play() 
     }
   }, [ZT1, A1, A2])
 
@@ -85,7 +85,7 @@ export default function MX1({ FX1, controlsRef, CJR1 }: { FX1: THREE.Vector3, co
     <group ref={XR1} scale={1.2}>
       <primitive object={M1.scene} visible={ZT1} />
       <primitive object={M2.scene} visible={!ZT1} />
-      <pointLight position={[0, 2, 0]} intensity={0.6} distance={12} color="#ffffff" />
+      <pointLight position={[0, 2, 0]} intensity={0.5} distance={10} color="#ffffff" />
     </group>
   )
 }
