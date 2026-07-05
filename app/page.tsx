@@ -2,10 +2,11 @@
 import { useState, useRef, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Environment, Plane, OrbitControls, useGLTF } from '@react-three/drei'
+import dynamic from 'next/dynamic'
 import MX1 from './MX1'
 import * as THREE from 'three'
 
-export default function YX1() {
+function YX2() {
   const [FX1, SX1] = useState(new THREE.Vector3(0, 0, 0))
   const [XY1, SX2] = useState({ x: 0, y: 0 })
   const [JD1, SJ1] = useState(0.5)
@@ -134,4 +135,7 @@ export default function YX1() {
     </div>
   )
 }
+
+const YX1 = dynamic(() => Promise.resolve(YX2), { ssr: false })
+export default YX1
 
