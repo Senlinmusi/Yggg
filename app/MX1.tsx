@@ -20,7 +20,6 @@ export default function MX1({ FX1, controlsRef, CJR1 }: { FX1: THREE.Vector3, co
           map: (c.material as any).map,
           gradientMap: null 
         })
-        c.castShadow = true
       }
     }))
   }, [M1, M2])
@@ -81,7 +80,7 @@ export default function MX1({ FX1, controlsRef, CJR1 }: { FX1: THREE.Vector3, co
     <group ref={XR1} scale={1.2}>
       <primitive object={M1.scene} visible={ZT1} />
       <primitive object={M2.scene} visible={!ZT1} />
-      <pointLight position={[0, 2, 0]} intensity={2.5} distance={15} castShadow shadow-mapSize={[1024, 1024]} color="#ffffff" />
+      <pointLight position={[0, 2, 0]} intensity={0.3} distance={10} color="#ffffff" />
     </group>
   )
 }

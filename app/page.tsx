@@ -1,7 +1,7 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { Environment, Plane, OrbitControls, useGLTF } from '@react-three/drei'
+import { Plane, OrbitControls, useGLTF } from '@react-three/drei'
 import dynamic from 'next/dynamic'
 import MX1 from './MX1'
 import * as THREE from 'three'
@@ -19,10 +19,8 @@ function YX2() {
     if (CJ1.scene) {
       CJ1.scene.traverse(c => {
         if (c instanceof THREE.Mesh) {
-          c.castShadow = true
-          c.receiveShadow = true
           if (c.material) {
-            c.material.roughness = 0.15
+            c.material.roughness = 0.2
             c.material.metalness = 0.1
           }
         }
@@ -72,13 +70,10 @@ function YX2() {
     <div className="w-screen h-screen bg-[#050508] touch-none flex items-center justify-center">
       <title>1</title>
       <div className="relative w-[360px] h-[640px] bg-black shadow-lg overflow-hidden">
-        <Canvas shadows camera={{ position: [0, 3, 5], fov: 45 }}>
-          <ambientLight intensity={0.02} color="#0a0a15" />
-          <directionalLight position={[15, 25, 15]} intensity={0.2} color="#334466" castShadow shadow-mapSize={[2048, 2048]}>
-            <orthographicCamera attach="shadow-camera" args={[-50, 50, 50, -50, 0.1, 100]} />
-          </directionalLight>
-          <Environment preset="city" environmentIntensity={0.05} />
-          <Plane rotation={[-Math.PI / 2, 0, 0]} args={[200, 200]} receiveShadow>
+        <Canvas camera={{ position: [0, 3, -5], fov: 45 }}>
+          <ambientLight intensity={0.05} color="#0a0a15" />
+          <directionalLight position={[15, 25, 15]} intensity={0.3} color="#334466" />
+          <Plane rotation={[-Math.PI / 2, 0, 0]} args={[200, 200]}>
             <meshToonMaterial color="#050508" />
           </Plane>
           <primitive object={CJ1.scene} ref={CJR1} />
