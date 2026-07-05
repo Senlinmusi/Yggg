@@ -1,61 +1,23 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { Plane, OrbitControls, useGLTF, useProgress } from '@react-three/drei'
+import { Plane, OrbitControls, useGLTF } from '@react-three/drei'
 import dynamic from 'next/dynamic'
 import MX1 from './MX1'
 import * as THREE from 'three'
-
-function JZJM({ YX3 }: { YX3: boolean }) {
-  const { progress } = useProgress()
-  if (!YX3) return null
-  return (
-    <div className="absolute inset-0 bg-white z-50 flex flex-col items-center justify-center p-8">
-      <div className="w-40 h-[2px] bg-gray-100 rounded-full overflow-hidden relative">
-        <div 
-          className="h-full bg-black transition-all duration-150 ease-out" 
-          style={{ width: `${progress}%` }}
-        />
-      </div>
-    </div>
-  )
-}
 
 function YX2() {
   const [FX1, SX1] = useState(new THREE.Vector3(0, 0, 0))
   const [XY1, SX2] = useState({ x: 0, y: 0 })
   const [JD1, SJ1] = useState(0.5)
   const [JD2, SJ2] = useState(0.5)
-  const [loading, setLoading] = useState(true)
   const CR1 = useRef<any>(null)
   const CJ1 = useGLTF('/cjjj.glb')
   const CJR1 = useRef<THREE.Group>(null)
-  const { active } = useProgress()
 
   useEffect(() => {
     document.title = '1'
   }, [])
-
-  useEffect(() => {
-    if (!active && CJ1.scene) {
-      setLoading(false)
-    }
-  }, [active, CJ1])
-
-  useEffect(() => {
-    if (CJ1.scene) {
-      CJ1.scene.traverse(c => {
-        if (c instanceof THREE.Mesh) {
-          c.castShadow = false
-          c.receiveShadow = false
-          if (c.material) {
-            c.material.roughness = 0.5
-            c.material.metalness = 0.1
-          }
-        }
-      })
-    }
-  }, [CJ1])
 
   const CZ1 = (e: React.PointerEvent) => {
     e.currentTarget.setPointerCapture(e.pointerId)
@@ -93,18 +55,16 @@ function YX2() {
   }
 
   const angleY = Math.PI / 6 + JD1 * (Math.PI / 3)
-  const angleX = Math.PI - (JD2 - 0.5) * (Math.PI * 1.5)
+  const angleX = (JD2 - 0.5) * Math.PI * 2 + Math.PI
 
   return (
-    <div className="w-screen h-screen bg-[#f0f0f0] touch-none flex items-center justify-center">
-      <div className="relative w-full h-full max-w-[360px] max-h-[640px] aspect-[9/16] bg-white shadow-lg overflow-hidden">
-        <JZJM YX3={loading} />
-        
-        <Canvas gl={{ antialias: false, powerPreference: 'high-performance' }} camera={{ position: [0, 2.5, 4], fov: 45 }}>
-          <ambientLight intensity={0.8} color="#ffffff" />
-          <directionalLight position={[5, 15, 5]} intensity={0.6} color="#ffffff" />
+    <div className="flex items-center justify-center w-screen h-screen bg-[#f0f0f0]">
+      <div className="relative w-full h-full max-w-[360px] max-h-[640px] aspect-[9/16] bg-black shadow-lg overflow-hidden">
+        <Canvas camera={{ position: [0, 3, -5], fov: 45 }}>
+          <ambientLight intensity={0.6} color="#ffffff" />
+          <directionalLight position={[10, 20, 10]} intensity={0.7} color="#ffffff" />
           <Plane rotation={[-Math.PI / 2, 0, 0]} args={[200, 200]}>
-            <meshBasicMaterial color="#ffffff" />
+            <meshToonMaterial color="#111115" />
           </Plane>
           <primitive object={CJ1.scene} ref={CJR1} />
           <MX1 FX1={FX1} controlsRef={CR1} CJR1={CJR1} />
@@ -112,7 +72,7 @@ function YX2() {
             ref={CR1} 
             target={[0, 1.5, 0]}
             enablePan={false} 
-            enableZoom={false}
+            enableZoom={true}
             minPolarAngle={angleY} 
             maxPolarAngle={angleY} 
             minAzimuthAngle={angleX}
@@ -120,39 +80,39 @@ function YX2() {
           />
         </Canvas>
 
-        <div className="absolute bottom-10 left-10 flex items-center gap-6 z-40">
+        <div className="absolute bottom-10 left-10 flex items-center gap-6 z-50">
           <div 
-            className="w-24 h-24 bg-white/10 backdrop-blur-md rounded-full border border-white/20 relative touch-none shrink-0" 
+            className="w-24 h-24 bg-white/5 backdrop-blur-md rounded-full border border-white/10 relative touch-none shrink-0" 
             onPointerDown={CZ1}
             onPointerMove={CZ1} 
             onPointerUp={CZ2}
             onPointerCancel={CZ2}
           >
             <div 
-              className="absolute top-1/2 left-1/2 w-10 h-10 bg-white rounded-full shadow-md" 
+              className="absolute top-1/2 left-1/2 w-10 h-10 bg-white/80 rounded-full shadow-lg" 
               style={{ transform: `translate(calc(-50% + ${XY1.x}px), calc(-50% + ${XY1.y}px))` }} 
             />
           </div>
 
           <div 
-            className="w-48 h-8 bg-white/10 backdrop-blur-md rounded-full border border-white/20 relative touch-none"
+            className="w-48 h-8 bg-white/5 backdrop-blur-md rounded-full border border-white/10 relative touch-none"
             onPointerDown={CZ4}
             onPointerMove={CZ4}
           >
             <div 
-              className="absolute top-1/2 -translate-y-1/2 w-6 h-6 bg-white shadow-md rounded-full"
+              className="absolute top-1/2 -translate-y-1/2 w-6 h-6 bg-white/80 shadow-lg rounded-full"
               style={{ left: `calc(${JD2 * 100}% - 12px)` }}
             />
           </div>
         </div>
 
         <div 
-          className="absolute right-6 top-1/2 -translate-y-1/2 w-8 h-48 bg-white/10 backdrop-blur-md rounded-full border border-white/20 z-40 touch-none"
+          className="absolute right-6 top-1/2 -translate-y-1/2 w-8 h-48 bg-white/5 backdrop-blur-md rounded-full border border-white/10 z-50 touch-none"
           onPointerDown={CZ3}
           onPointerMove={CZ3}
         >
           <div 
-            className="absolute left-1/2 -translate-x-1/2 w-6 h-6 bg-white rounded-full shadow-md"
+            className="absolute left-1/2 -translate-x-1/2 w-6 h-6 bg-white/80 rounded-full shadow-lg"
             style={{ top: `calc(${JD1 * 100}% - 12px)` }}
           />
         </div>
