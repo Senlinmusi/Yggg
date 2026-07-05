@@ -1,7 +1,7 @@
 'use client'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { Environment, Plane, OrbitControls } from '@react-three/drei'
+import { Environment, Plane, OrbitControls, useGLTF } from '@react-three/drei'
 import MX1 from './MX1'
 import * as THREE from 'three'
 
@@ -11,6 +11,23 @@ export default function YX1() {
   const [JD1, SJ1] = useState(0.5)
   const [JD2, SJ2] = useState(0.5)
   const CR1 = useRef<any>(null)
+  const CJ1 = useGLTF('/cjjj.glb')
+  const CJR1 = useRef<THREE.Group>(null)
+
+  useEffect(() => {
+    if (CJ1.scene) {
+      CJ1.scene.traverse(c => {
+        if (c instanceof THREE.Mesh) {
+          c.castShadow = true
+          c.receiveShadow = true
+          if (c.material) {
+            c.material.roughness = 0.15
+            c.material.metalness = 0.1
+          }
+        }
+      })
+    }
+  }, [CJ1])
 
   const CZ1 = (e: React.PointerEvent) => {
     e.currentTarget.setPointerCapture(e.pointerId)
@@ -51,19 +68,20 @@ export default function YX1() {
   const angleX = -Math.PI + JD2 * (Math.PI * 2)
 
   return (
-    <div className="w-screen h-screen bg-[#f0f0f0] touch-none flex items-center justify-center">
+    <div className="w-screen h-screen bg-[#050508] touch-none flex items-center justify-center">
       <title>1</title>
-      <div className="relative w-[360px] h-[640px] bg-white shadow-lg overflow-hidden">
+      <div className="relative w-[360px] h-[640px] bg-black shadow-lg overflow-hidden">
         <Canvas shadows camera={{ position: [0, 3, 5], fov: 45 }}>
-          <ambientLight intensity={0.6} />
-          <directionalLight position={[20, 20, 20]} intensity={1.5} castShadow shadow-mapSize={[2048, 2048]}>
+          <ambientLight intensity={0.02} color="#0a0a15" />
+          <directionalLight position={[15, 25, 15]} intensity={0.2} color="#334466" castShadow shadow-mapSize={[2048, 2048]}>
             <orthographicCamera attach="shadow-camera" args={[-50, 50, 50, -50, 0.1, 100]} />
           </directionalLight>
-          <Environment preset="city" />
+          <Environment preset="city" environmentIntensity={0.05} />
           <Plane rotation={[-Math.PI / 2, 0, 0]} args={[200, 200]} receiveShadow>
-            <meshToonMaterial color="#fff" />
+            <meshToonMaterial color="#050508" />
           </Plane>
-          <MX1 FX1={FX1} controlsRef={CR1} />
+          <primitive object={CJ1.scene} ref={CJR1} />
+          <MX1 FX1={FX1} controlsRef={CR1} CJR1={CJR1} />
           <OrbitControls 
             ref={CR1} 
             target={[0, 1.5, 0]}
@@ -78,37 +96,37 @@ export default function YX1() {
 
         <div className="absolute bottom-10 left-10 flex items-center gap-6 z-50">
           <div 
-            className="w-24 h-24 bg-black/10 backdrop-blur-md rounded-full border border-white/30 relative touch-none shrink-0" 
+            className="w-24 h-24 bg-white/5 backdrop-blur-md rounded-full border border-white/10 relative touch-none shrink-0" 
             onPointerDown={CZ1}
             onPointerMove={CZ1} 
             onPointerUp={CZ2}
             onPointerCancel={CZ2}
           >
             <div 
-              className="absolute top-1/2 left-1/2 w-10 h-10 bg-white rounded-full shadow-lg" 
+              className="absolute top-1/2 left-1/2 w-10 h-10 bg-white/80 rounded-full shadow-lg" 
               style={{ transform: `translate(calc(-50% + ${XY1.x}px), calc(-50% + ${XY1.y}px))` }} 
             />
           </div>
 
           <div 
-            className="w-48 h-8 bg-black/10 backdrop-blur-md rounded-full border border-white/30 relative touch-none"
+            className="w-48 h-8 bg-white/5 backdrop-blur-md rounded-full border border-white/10 relative touch-none"
             onPointerDown={CZ4}
             onPointerMove={CZ4}
           >
             <div 
-              className="absolute top-1/2 -translate-y-1/2 w-6 h-6 bg-white shadow-lg rounded-full"
+              className="absolute top-1/2 -translate-y-1/2 w-6 h-6 bg-white/80 shadow-lg rounded-full"
               style={{ left: `calc(${JD2 * 100}% - 12px)` }}
             />
           </div>
         </div>
 
         <div 
-          className="absolute right-6 top-1/2 -translate-y-1/2 w-8 h-48 bg-black/10 backdrop-blur-md rounded-full border border-white/30 z-50 touch-none"
+          className="absolute right-6 top-1/2 -translate-y-1/2 w-8 h-48 bg-white/5 backdrop-blur-md rounded-full border border-white/10 z-50 touch-none"
           onPointerDown={CZ3}
           onPointerMove={CZ3}
         >
           <div 
-            className="absolute left-1/2 -translate-x-1/2 w-6 h-6 bg-white rounded-full shadow-lg"
+            className="absolute left-1/2 -translate-x-1/2 w-6 h-6 bg-white/80 rounded-full shadow-lg"
             style={{ top: `calc(${JD1 * 100}% - 12px)` }}
           />
         </div>

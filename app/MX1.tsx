@@ -4,7 +4,7 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 
-export default function MX1({ FX1, controlsRef }: { FX1: THREE.Vector3, controlsRef: any }) {
+export default function MX1({ FX1, controlsRef, CJR1 }: { FX1: THREE.Vector3, controlsRef: any, CJR1: any }) {
   const M1 = useGLTF('/walk.glb')
   const M2 = useGLTF('/wait.glb')
   const { actions: A1 } = useAnimations(M1.animations, M1.scene)
@@ -33,12 +33,28 @@ export default function MX1({ FX1, controlsRef }: { FX1: THREE.Vector3, controls
       const dir = FX1.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), angle)
       const step = dir.multiplyScalar(delta * 3)
       
-      XR1.current.position.add(step)
+      let PZ1 = false
+      if (CJR1.current) {
+        const YC1 = new THREE.Raycaster(XR1.current.position.clone().add(new THREE.Vector3(0, 0.5, 0)), dir.clone().normalize(), 0, 0.6)
+        const JZ1 = YC1.intersectObjects(CJR1.current.children, true)
+        if (JZ1.length > 0) PZ1 = true
+      }
+
+      if (!PZ1) {
+        XR1.current.position.add(step)
+        camera.position.add(step)
+        if (controlsRef.current) {
+          controlsRef.current.target.add(step)
+        }
+      }
       XR1.current.lookAt(XR1.current.position.clone().add(dir))
-      
-      camera.position.add(step)
-      if (controlsRef.current) {
-        controlsRef.current.target.add(step)
+    }
+
+    if (CJR1.current) {
+      const YC2 = new THREE.Raycaster(XR1.current.position.clone().add(new THREE.Vector3(0, 5, 0)), new THREE.Vector3(0, -1, 0))
+      const JZ2 = YC2.intersectObjects(CJR1.current.children, true)
+      if (JZ2.length > 0) {
+        XR1.current.position.y = JZ2[0].point.y
       }
     }
 
@@ -65,6 +81,7 @@ export default function MX1({ FX1, controlsRef }: { FX1: THREE.Vector3, controls
     <group ref={XR1} scale={1.2}>
       <primitive object={M1.scene} visible={ZT1} />
       <primitive object={M2.scene} visible={!ZT1} />
+      <pointLight position={[0, 2, 0]} intensity={2.5} distance={15} castShadow shadow-mapSize={[1024, 1024]} color="#ffffff" />
     </group>
   )
 }
