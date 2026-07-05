@@ -11,16 +11,30 @@ export default function MX1({ FX1, controlsRef, CJR1 }: { FX1: THREE.Vector3, co
   const { actions: A2 } = useAnimations(M2.animations, M2.scene)
   const XR1 = useRef<THREE.Group>(null)
   const { camera } = useThree()
-  const boxRef = useRef<THREE.Box3 | null>(null)
+  
+  // 空气墙边界引用
+  const sceneBox = useRef<THREE.Box3 | null>(null)
 
   useEffect(() => {
     [M1.scene, M2.scene].forEach(s => s.traverse(c => {
       if (c instanceof THREE.Mesh) {
-        c.castShadow = true
-        c.receiveShadow = true
+        c.material = new THREE.MeshToonMaterial({ 
+          color: 0xffffff, 
+          map: (c.material as any).map,
+          gradientMap: null 
+        })
       }
     }))
   }, [M1, M2])
+
+  // 当场景模型加载完成后，计算空气墙边界
+  useEffect(() => {
+    if (CJR1.current) {
+      sceneBox.current = new THREE.Box3().setFromObject(CJR1.current)
+      // 向内微调缩进 1 个单位，防止角色踩在最外侧悬空边缘
+      sceneBox.current.expandByScalar(-1.0)
+    }
+  }, [CJR1])
 
   useFrame((state, delta) => {
     if (!XR1.current) return
@@ -32,24 +46,17 @@ export default function MX1({ FX1, controlsRef, CJR1 }: { FX1: THREE.Vector3, co
       
       const nextPos = XR1.current.position.clone().add(step)
       let PZ1 = false
-
-      // 1. 射线碰撞检测（原本的墙体阻挡）
+      
+      // 1. 射线碰撞检测（常规障碍物）
       if (CJR1.current) {
         const YC1 = new THREE.Raycaster(XR1.current.position.clone().add(new THREE.Vector3(0, 0.5, 0)), dir.clone().normalize(), 0, 0.6)
         const JZ1 = YC1.intersectObjects(CJR1.current.children, true)
         if (JZ1.length > 0) PZ1 = true
       }
 
-      // 2. 边界空气墙检测（自动计算场景建模尽头）
-      if (CJR1.current && !boxRef.current) {
-        boxRef.current = new THREE.Box3().setFromObject(CJR1.current)
-      }
-      if (boxRef.current) {
-        const pad = 0.6 // 离尽头的缓冲距离
-        if (nextPos.x < boxRef.current.min.x + pad || nextPos.x > boxRef.current.max.x - pad ||
-            nextPos.z < boxRef.current.min.z + pad || nextPos.z > boxRef.current.max.z - pad) {
-          PZ1 = true 
-        }
+      // 2. 空气墙检测（超出地图尽头则禁止移动）
+      if (sceneBox.current && !sceneBox.current.containsPoint(nextPos)) {
+        PZ1 = true
       }
 
       if (!PZ1) {

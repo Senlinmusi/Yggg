@@ -1,27 +1,44 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { Plane, OrbitControls, useGLTF, useProgress } from '@react-three/drei'
+import { Plane, OrbitControls, useGLTF, Environment, useProgress } from '@react-three/drei'
 import dynamic from 'next/dynamic'
 import MX1 from './MX1'
 import * as THREE from 'three'
+
+// 独立的加载界面组件（白底，黑色加载条）
+function LoadingScreen() {
+  const { active, progress } = useProgress()
+  if (!active) return null
+  return (
+    <div className="absolute inset-0 bg-white flex flex-col items-center justify-center z-[100]">
+      <div className="w-40 h-[4px] bg-gray-200 rounded-full overflow-hidden">
+        <div 
+          className="h-full bg-black transition-all duration-150 ease-out" 
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+    </div>
+  )
+}
 
 function YX2() {
   const [FX1, SX1] = useState(new THREE.Vector3(0, 0, 0))
   const [XY1, SX2] = useState({ x: 0, y: 0 })
   const [JD1, SJ1] = useState(0.5)
-  const [JD2, SJ2] = useState(0.5)
+  const [JD2, SJ2] = useState(0.5) // 默认 0.5 居中
   const CR1 = useRef<any>(null)
   const CJ1 = useGLTF('/cjjj.glb')
   const CJR1 = useRef<THREE.Group>(null)
-  const { active, progress } = useProgress()
 
   useEffect(() => {
     if (CJ1.scene) {
       CJ1.scene.traverse(c => {
         if (c instanceof THREE.Mesh) {
-          c.castShadow = true
-          c.receiveShadow = true
+          if (c.material) {
+            c.material.roughness = 0.4
+            c.material.metalness = 0.1
+          }
         }
       })
     }
@@ -63,34 +80,23 @@ function YX2() {
   }
 
   const angleY = Math.PI / 6 + JD1 * (Math.PI / 3)
-  // 映射调整：确保当 JD2 为 0.5 时，相机旋转 180 度正好对准角色后背
-  const angleX = JD2 * (Math.PI * 2)
+  // 修正初始视角为背面（Math.PI），滑动方向与控制条完全同步
+  const angleX = Math.PI + (JD2 - 0.5) * Math.PI * 2
 
   return (
     <div className="w-screen h-screen bg-[#050508] touch-none flex items-center justify-center">
       <title>1</title>
       <div className="relative w-[360px] h-[640px] bg-black shadow-lg overflow-hidden">
         
-        {/* 白底黑条加载界面 */}
-        {active && (
-          <div className="absolute inset-0 bg-white z-[100] flex flex-col items-center justify-center gap-2">
-            <div className="w-40 h-1 bg-gray-200 rounded-full overflow-hidden">
-              <div 
-                className="bg-black h-full transition-all duration-100 ease-out" 
-                style={{ width: `${progress}%` }} 
-              />
-            </div>
-            <span className="text-black text-[10px] font-mono tracking-wider">{Math.round(progress)}%</span>
-          </div>
-        )}
-
-        <Canvas shadows camera={{ position: [0, 3, 5], fov: 45 }}>
-          {/* 恢复并平衡整体场景光照，确保清晰不发黑 */}
-          <ambientLight intensity={0.6} color="#ffffff" />
-          <directionalLight position={[10, 20, 10]} intensity={0.7} color="#ffffff" castShadow shadow-mapSize={[1024, 1024]} />
+        {/* dpr 限制防止高分屏卡顿，不开启 shadows 极大提升运行效率 */}
+        <Canvas dpr={[1, 1.5]} camera={{ position: [0, 3, -5], fov: 45 }}>
+          {/* 大幅度调亮全局场景环境光照 */}
+          <ambientLight intensity={0.7} color="#ffffff" />
+          <directionalLight position={[10, 20, 10]} intensity={0.6} color="#ffffff" />
+          <Environment preset="city" environmentIntensity={0.5} />
           
-          <Plane rotation={[-Math.PI / 2, 0, 0]} args={[200, 200]} receiveShadow>
-            <meshStandardMaterial color="#111115" roughness={0.8} />
+          <Plane rotation={[-Math.PI / 2, 0, 0]} args={[200, 200]}>
+            <meshToonMaterial color="#111115" />
           </Plane>
           <primitive object={CJ1.scene} ref={CJR1} />
           <MX1 FX1={FX1} controlsRef={CR1} CJR1={CJR1} />
@@ -105,6 +111,9 @@ function YX2() {
             maxAzimuthAngle={angleX}
           />
         </Canvas>
+
+        {/* 顶部/全局覆盖的白底黑条加载层 */}
+        <LoadingScreen />
 
         <div className="absolute bottom-10 left-10 flex items-center gap-6 z-50">
           <div 
