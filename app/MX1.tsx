@@ -11,30 +11,20 @@ export default function MX1({ FX1, controlsRef, CJR1 }: { FX1: THREE.Vector3, co
   const { actions: A2 } = useAnimations(M2.animations, M2.scene)
   const XR1 = useRef<THREE.Group>(null)
   const { camera } = useThree()
-  
-  // 空气墙边界引用
-  const sceneBox = useRef<THREE.Box3 | null>(null)
 
   useEffect(() => {
     [M1.scene, M2.scene].forEach(s => s.traverse(c => {
       if (c instanceof THREE.Mesh) {
+        c.castShadow = false
+        c.receiveShadow = false
         c.material = new THREE.MeshToonMaterial({ 
-          color: 0xffffff, 
+          color: 0x999999, 
           map: (c.material as any).map,
-          gradientMap: null 
+          gradientMap: null
         })
       }
     }))
   }, [M1, M2])
-
-  // 当场景模型加载完成后，计算空气墙边界
-  useEffect(() => {
-    if (CJR1.current) {
-      sceneBox.current = new THREE.Box3().setFromObject(CJR1.current)
-      // 向内微调缩进 1 个单位，防止角色踩在最外侧悬空边缘
-      sceneBox.current.expandByScalar(-1.0)
-    }
-  }, [CJR1])
 
   useFrame((state, delta) => {
     if (!XR1.current) return
@@ -44,26 +34,22 @@ export default function MX1({ FX1, controlsRef, CJR1 }: { FX1: THREE.Vector3, co
       const dir = FX1.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), angle)
       const step = dir.multiplyScalar(delta * 3)
       
-      const nextPos = XR1.current.position.clone().add(step)
       let PZ1 = false
-      
-      // 1. 射线碰撞检测（常规障碍物）
       if (CJR1.current) {
         const YC1 = new THREE.Raycaster(XR1.current.position.clone().add(new THREE.Vector3(0, 0.5, 0)), dir.clone().normalize(), 0, 0.6)
         const JZ1 = YC1.intersectObjects(CJR1.current.children, true)
         if (JZ1.length > 0) PZ1 = true
       }
 
-      // 2. 空气墙检测（超出地图尽头则禁止移动）
-      if (sceneBox.current && !sceneBox.current.containsPoint(nextPos)) {
-        PZ1 = true
-      }
-
       if (!PZ1) {
         XR1.current.position.add(step)
+        
+        XR1.current.position.x = Math.max(-12, Math.min(12, XR1.current.position.x))
+        XR1.current.position.z = Math.max(-12, Math.min(12, XR1.current.position.z))
+
         camera.position.add(step)
         if (controlsRef.current) {
-          controlsRef.current.target.add(step)
+          controlsRef.current.target.copy(XR1.current.position.clone().add(new THREE.Vector3(0, 1.5, 0)))
         }
       }
       XR1.current.lookAt(XR1.current.position.clone().add(dir))
@@ -88,16 +74,16 @@ export default function MX1({ FX1, controlsRef, CJR1 }: { FX1: THREE.Vector3, co
     const actW = A1[Object.keys(A1)[0]]
     const actI = A2[Object.keys(A2)[0]]
     if (ZT1) { 
-      actI?.fadeOut(0.3) 
-      actW?.reset().fadeIn(0.3).play() 
+      actI?.fadeOut(0.2) 
+      actW?.reset().fadeIn(0.2).play() 
     } else { 
-      actW?.fadeOut(0.3) 
-      actI?.reset().fadeIn(0.3).play() 
+      actW?.fadeOut(0.2) 
+      actI?.reset().fadeIn(0.2).play() 
     }
   }, [ZT1, A1, A2])
 
   return (
-    <group ref={XR1} scale={1.2}>
+    <group ref={XR1} scale={1.1}>
       <primitive object={M1.scene} visible={ZT1} />
       <primitive object={M2.scene} visible={!ZT1} />
     </group>
