@@ -66,7 +66,8 @@ function YX2() {
     SJ2(Math.max(0, Math.min(1, x)))
   }
 
-  const CZ5 = () => {
+  const CZ5 = (e: React.PointerEvent) => {
+    e.preventDefault()
     SSD1(p => !p)
   }
 
@@ -81,10 +82,10 @@ function YX2() {
           gl={{ antialias: false, powerPreference: 'high-performance', depth: true }}
           dpr={1}
         >
-          <ambientLight intensity={0.15} color="#111125" />
-          <directionalLight position={[10, 20, 10]} intensity={0.3} color="#556699" />
-          <hemisphereLight args={['#0a0a20', '#020208', 0.4]} />
-          <Plane rotation={[-Math.PI / 2, 0, 0]} args={[300, 300]}>
+          <ambientLight intensity={0.12} color="#111125" />
+          <directionalLight position={[10, 20, 10]} intensity={0.25} color="#556699" />
+          <hemisphereLight args={['#0a0a20', '#020208', 0.3]} />
+          <Plane rotation={[-Math.PI / 2, 0, 0]} args={[350, 350]}>
             <meshToonMaterial color="#030305" />
           </Plane>
           <primitive object={CJ1.scene} ref={CJR1} />
@@ -117,8 +118,8 @@ function YX2() {
 
           <div className="flex flex-col items-center gap-3">
             <div 
-              className="w-14 h-14 bg-white/5 backdrop-blur-md rounded-full border border-white/10 flex items-center justify-center text-white text-lg font-sans font-medium select-none cursor-pointer active:scale-90 transition-transform shadow-lg"
-              onClick={CZ5}
+              className="w-14 h-14 bg-white/5 backdrop-blur-md rounded-full border border-white/10 flex items-center justify-center text-white text-lg font-sans font-medium select-none cursor-pointer active:scale-95 transition-transform shadow-lg"
+              onPointerDown={CZ5}
               style={{ backgroundColor: SD1 ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.05)' }}
             >
               K

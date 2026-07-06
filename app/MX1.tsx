@@ -32,16 +32,36 @@ export default function MX1({ FX1, KZR1, CJR1, SD1 }: { FX1: THREE.Vector3, KZR1
     
     if (FX1.length() > 0) {
       const angle = Math.atan2(camera.position.x - XR1.current.position.x, camera.position.z - XR1.current.position.z)
-      const dir = FX1.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), angle)
-      const step = dir.multiplyScalar(delta * 4)
-      
+      const dir = FX1.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), angle).normalize()
+      const step = dir.clone().multiplyScalar(delta * 4)
       const MB1 = XR1.current.position.clone().add(step)
       
-      if (Math.abs(MB1.x) < 120 && Math.abs(MB1.z) < 120) {
-        XR1.current.position.add(step)
-        camera.position.add(step)
-        if (KZR1.current) {
-          KZR1.current.target.add(step)
+      if (Math.abs(MB1.x) < 135 && Math.abs(MB1.z) < 135) {
+        let KY1 = true
+        let ND1 = XR1.current.position.y
+
+        if (CJR1.current) {
+          const YC2 = new THREE.Raycaster(MB1.clone().add(new THREE.Vector3(0, 3, 0)), new THREE.Vector3(0, -1, 0), 0, 6)
+          const JZ2 = YC2.intersectObjects(CJR1.current.children, true)
+          if (JZ2.length > 0) {
+            const GD1 = JZ2[0].point.y
+            if (GD1 - XR1.current.position.y > 0.4) {
+              KY1 = false
+            } else {
+              ND1 = GD1
+            }
+          } else {
+            KY1 = false
+          }
+        }
+
+        if (KY1) {
+          XR1.current.position.copy(MB1)
+          XR1.current.position.y = ND1
+          camera.position.add(step)
+          if (KZR1.current) {
+            KZR1.current.target.copy(XR1.current.position).add(new THREE.Vector3(0, 1, 0))
+          }
         }
       }
       XR1.current.lookAt(XR1.current.position.clone().add(dir))
@@ -70,8 +90,8 @@ export default function MX1({ FX1, KZR1, CJR1, SD1 }: { FX1: THREE.Vector3, KZR1
     <group ref={XR1} scale={1.2}>
       <primitive object={M1.scene} visible={ZT1} />
       <primitive object={M2.scene} visible={!ZT1} />
-      <pointLight position={[0, 2, 0]} intensity={0.4} distance={10} color="#ffffff" />
-      {SD1 && <pointLight position={[0, 1.2, 2]} intensity={6} distance={25} color="#ffffff" />}
+      <pointLight position={[0, 2, 0]} intensity={0.3} distance={10} color="#ffffff" />
+      {SD1 && <pointLight position={[0, 1.2, 1.5]} intensity={8} distance={30} color="#ffffff" />}
     </group>
   )
 }
