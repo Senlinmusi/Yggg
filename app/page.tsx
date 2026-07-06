@@ -8,12 +8,12 @@ import * as THREE from 'three'
 
 function YX2() {
   const [FX1, SX1] = useState(new THREE.Vector3(0, 0, 0))
-  const [XY1, SX2] = useState({ x: 0, y: 0 })
+  const [XY1, SX2] = useState({ ZB7: 0, ZB8: 0 })
   const [JD1, SJ1] = useState(0.5)
   const [JD2, SJ2] = useState(0.5)
   const [SD1, SSD1] = useState(false)
   const [JS1, SJS1] = useState('00:00')
-  const [MJCount, setMJCount] = useState(0) // 收集数量全局状态
+  const [SL2, SZ1] = useState(0) 
   const KZR1 = useRef<any>(null)
   const CJ1 = useGLTF('/cjjj.glb')
   const CJR1 = useRef<THREE.Group>(null)
@@ -21,17 +21,16 @@ function YX2() {
   useEffect(() => {
     document.title = '1'
     if (CJ1.scene) {
-      // 高级智能对齐：自动计算模型物理边界，强制将地图横向几何中心校准到 (0,0) 点
-      const box = new THREE.Box3().setFromObject(CJ1.scene)
-      const center = new THREE.Vector3()
-      box.getCenter(center)
-      CJ1.scene.position.set(-center.x, 0, -center.z)
+      const HX1 = new THREE.Box3().setFromObject(CJ1.scene)
+      const ZX1 = new THREE.Vector3()
+      HX1.getCenter(ZX1)
+      CJ1.scene.position.set(-ZX1.x, 0, -ZX1.z)
 
-      CJ1.scene.traverse(c => {
-        if (c instanceof THREE.Mesh) {
-          if (c.material) {
-            c.material.roughness = 0.6
-            c.material.metalness = 0.1
+      CJ1.scene.traverse(DX4 => {
+        if (DX4 instanceof THREE.Mesh) {
+          if (DX4.material) {
+            DX4.material.roughness = 0.6
+            DX4.material.metalness = 0.1
           }
         }
       })
@@ -39,73 +38,71 @@ function YX2() {
   }, [CJ1])
 
   useEffect(() => {
-    let m = 0
-    let s = 0
-    const iv = setInterval(() => {
-      s++
-      if (s >= 60) {
-        s = 0
-        m++
+    let FZ1 = 0
+    let MZ1 = 0
+    const DS1 = setInterval(() => {
+      MZ1++
+      if (MZ1 >= 60) {
+        MZ1 = 0
+        FZ1++
       }
-      SJS1(`${m < 10 ? '0' + m : m}:${s < 10 ? '0' + s : s}`)
+      SJS1(`${FZ1 < 10 ? '0' + FZ1 : FZ1}:${MZ1 < 10 ? '0' + MZ1 : MZ1}`)
     }, 1000)
-    return () => clearInterval(iv)
+    return () => clearInterval(DS1)
   }, [])
 
-  const CZ1 = (e: React.PointerEvent) => {
-    e.currentTarget.setPointerCapture(e.pointerId)
-    const r = e.currentTarget.getBoundingClientRect()
-    const x = (e.clientX - r.left - 48) / 48
-    const y = (e.clientY - r.top - 48) / 48
-    const dist = Math.min(1, Math.sqrt(x * x + y * y))
-    const angle = Math.atan2(y, x)
-    const finalX = dist * Math.cos(angle)
-    const finalY = dist * Math.sin(angle)
-    SX2({ x: finalX * 40, y: finalY * 40 })
-    SX1(new THREE.Vector3(finalX, 0, finalY))
+  const CZ1 = (SJ3: React.PointerEvent) => {
+    SJ3.currentTarget.setPointerCapture(SJ3.pointerId)
+    const BJ1 = SJ3.currentTarget.getBoundingClientRect()
+    const ZB7 = (SJ3.clientX - BJ1.left - 48) / 48
+    const ZB8 = (SJ3.clientY - BJ1.top - 48) / 48
+    const JL2 = Math.min(1, Math.sqrt(ZB7 * ZB7 + ZB8 * ZB8))
+    const JD4 = Math.atan2(ZB8, ZB7)
+    const ZB9 = JL2 * Math.cos(JD4)
+    const ZB10 = JL2 * Math.sin(JD4)
+    SX2({ ZB7: ZB9 * 40, ZB8: ZB10 * 40 })
+    SX1(new THREE.Vector3(ZB9, 0, ZB10))
   }
 
-  const CZ2 = (e: React.PointerEvent) => { 
-    e.currentTarget.releasePointerCapture(e.pointerId)
-    SX2({ x: 0, y: 0 })
+  const CZ2 = (SJ3: React.PointerEvent) => { 
+    SJ3.currentTarget.releasePointerCapture(SJ3.pointerId)
+    SX2({ ZB7: 0, ZB8: 0 })
     SX1(new THREE.Vector3(0, 0, 0)) 
   }
 
-  const CZ3 = (e: React.PointerEvent) => {
-    if (e.pointerType === 'mouse' && e.buttons === 0) return
-    e.currentTarget.setPointerCapture(e.pointerId)
-    const r = e.currentTarget.getBoundingClientRect()
-    const y = (e.clientY - r.top) / r.height
-    SJ1(Math.max(0, Math.min(1, y)) || 0.001)
+  const CZ3 = (SJ3: React.PointerEvent) => {
+    if (SJ3.pointerType === 'mouse' && SJ3.buttons === 0) return
+    SJ3.currentTarget.setPointerCapture(SJ3.pointerId)
+    const BJ1 = SJ3.currentTarget.getBoundingClientRect()
+    const ZB8 = (SJ3.clientY - BJ1.top) / BJ1.height
+    SJ1(Math.max(0, Math.min(1, ZB8)) || 0.001)
   }
 
-  const CZ4 = (e: React.PointerEvent) => {
-    if (e.pointerType === 'mouse' && e.buttons === 0) return
-    e.currentTarget.setPointerCapture(e.pointerId)
-    const r = e.currentTarget.getBoundingClientRect()
-    const x = (e.clientX - r.left) / r.width
-    SJ2(Math.max(0, Math.min(1, x)) || 0.001)
+  const CZ4 = (SJ3: React.PointerEvent) => {
+    if (SJ3.pointerType === 'mouse' && SJ3.buttons === 0) return
+    SJ3.currentTarget.setPointerCapture(SJ3.pointerId)
+    const BJ1 = SJ3.currentTarget.getBoundingClientRect()
+    const ZB7 = (SJ3.clientX - BJ1.left) / BJ1.width
+    SJ2(Math.max(0, Math.min(1, ZB7)) || 0.001)
   }
 
-  const CZ5 = (e: React.PointerEvent) => {
-    e.preventDefault()
-    SSD1(p => !p)
+  const CZ5 = (SJ3: React.PointerEvent) => {
+    SJ3.preventDefault()
+    SSD1(ZT3 => !ZT3)
   }
 
-  const angleY = Math.PI / 6 + JD1 * (Math.PI / 3)
-  const angleX = -(JD2 * Math.PI * 2)
+  const JD5 = Math.PI / 6 + JD1 * (Math.PI / 3)
+  const JD6 = -(JD2 * Math.PI * 2)
 
   return (
     <div className="flex items-center justify-center w-screen h-screen bg-[#f0f0f0]">
       <div className="relative w-full h-full max-w-[360px] max-h-[640px] aspect-[9/16] bg-[#050508] shadow-lg overflow-hidden cursor-pointer">
-        {/* 左上角：计时器 */}
         <div className="absolute top-6 left-6 bg-white/5 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 text-white font-mono text-xs tracking-wider z-50 select-none">
           {JS1}
         </div>
 
-        {/* 右上角：高级磨砂毛玻璃圆形面具收集计数器 */}
         <div className="absolute top-6 right-6 w-12 h-12 bg-white/5 backdrop-blur-md rounded-full border border-white/10 flex flex-col items-center justify-center text-white z-50 select-none shadow-lg transition-all duration-300">
-          <span className="text-sm font-bold leading-none font-sans">{MJCount}</span>
+          <span className="text-sm font-bold leading-none font-mono">{SL2}</span>
           <span className="text-[9px] text-white/30 font-mono mt-0.5 scale-90">/5</span>
         </div>
 
@@ -121,20 +118,19 @@ function YX2() {
             <meshToonMaterial color="#030305" />
           </Plane>
           <primitive object={CJ1.scene} ref={CJR1} />
-          <MX1 FX1={FX1} KZR1={KZR1} CJR1={CJR1} SD1={SD1} setMJCount={setMJCount} />
+          <MX1 FX1={FX1} KZR1={KZR1} CJR1={CJR1} SD1={SD1} SZ1={SZ1} />
           <OrbitControls 
             ref={KZR1} 
             target={[0, 1.3, 0]}
             enablePan={false} 
             enableZoom={true}
-            minPolarAngle={angleY} 
-            maxPolarAngle={angleY} 
-            minAzimuthAngle={angleX}
-            maxAzimuthAngle={angleX}
+            minPolarAngle={JD5} 
+            maxPolarAngle={JD5} 
+            minAzimuthAngle={JD6}
+            maxAzimuthAngle={JD6}
           />
         </Canvas>
 
-        {/* 底部摇杆与UI控制区 */}
         <div className="absolute bottom-6 left-8 flex items-end gap-6 z-50">
           <div 
             className="w-24 h-24 bg-white/5 backdrop-blur-md rounded-full border border-white/10 relative touch-none shrink-0" 
@@ -145,7 +141,7 @@ function YX2() {
           >
             <div 
               className="absolute top-1/2 left-1/2 w-10 h-10 bg-white/80 rounded-full shadow-lg" 
-              style={{ transform: `translate(calc(-50% + ${XY1.x}px), calc(-50% + ${XY1.y}px))` }} 
+              style={{ transform: `translate(calc(-50% + ${XY1.ZB7}px), calc(-50% + ${XY1.ZB8}px))` }} 
             />
           </div>
 
