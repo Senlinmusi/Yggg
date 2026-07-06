@@ -40,6 +40,7 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1 }: MX1Props) {
 
   const PL1 = useRef(0)
   const GD2 = useRef(0)
+  const CJ_MS = useRef<THREE.Object3D[]>([])
 
   useEffect(() => {
     [M1.scene, M2.scene].forEach(s => s.traverse(c => {
@@ -56,18 +57,29 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1 }: MX1Props) {
   useFrame((state, delta) => {
     if (!XR1.current) return
 
+    if (CJ_MS.current.length === 0 && CJR1.current) {
+      CJR1.current.traverse(c => {
+        if (c instanceof THREE.Mesh) CJ_MS.current.push(c)
+      })
+    }
+
     if (!SQ1.current && CJR1.current && M3.scene) {
       let rx = 0, rz = 0, ry = 0
-      for (let i = 0; i < 20; i++) {
+      for (let i = 0; i < 200; i++) {
         rx = (Math.random() - 0.5) * 220
         rz = (Math.random() - 0.5) * 220
-        XR1.current.position.set(rx, 20, rz)
-        YC2.current.set(XR1.current.position, YD1.current)
-        YC2.current.far = 40
-        const JZ = YC2.current.intersectObject(CJR1.current, true)
+        W3.current.set(rx, 40, rz)
+        YC2.current.set(W3.current, YD1.current)
+        YC2.current.far = 60
+        const JZ = YC2.current.intersectObjects(CJ_MS.current)
         if (JZ.length > 0) {
-          ry = JZ[0].point.y
-          if (ry < 0.5) break
+          const hit = JZ[0]
+          const name = hit.object.name.toLowerCase()
+          if (name.includes('house') || name.includes('build') || name.includes('房') || name.includes('roof') || hit.point.y > 1.0) {
+            continue
+          }
+          ry = hit.point.y
+          break
         }
       }
       XR1.current.position.set(rx, ry, rz)
@@ -80,16 +92,21 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1 }: MX1Props) {
       const arr = []
       for (let i = 0; i < 5; i++) {
         let mx = 0, mz = 0, my = 0
-        for (let j = 0; j < 20; j++) {
+        for (let j = 0; j < 200; j++) {
           mx = (Math.random() - 0.5) * 220
           mz = (Math.random() - 0.5) * 220
-          W3.current.set(mx, 20, mz)
+          W3.current.set(mx, 40, mz)
           YC2.current.set(W3.current, YD1.current)
-          YC2.current.far = 40
-          const JZ_M = YC2.current.intersectObject(CJR1.current, true)
+          YC2.current.far = 60
+          const JZ_M = YC2.current.intersectObjects(CJ_MS.current)
           if (JZ_M.length > 0) {
-            my = JZ_M[0].point.y
-            if (my < 0.5) break
+            const hit = JZ_M[0]
+            const name = hit.object.name.toLowerCase()
+            if (name.includes('house') || name.includes('build') || name.includes('房') || name.includes('roof') || hit.point.y > 1.0) {
+              continue
+            }
+            my = hit.point.y
+            break
           }
         }
         const clone = M3.scene.clone()
@@ -162,10 +179,10 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1 }: MX1Props) {
         let ND1 = XR1.current.position.y
 
         if (CJR1.current) {
-          W1.current.copy(XR1.current.position).add(W2.current.set(0, 0.45, 0))
+          W1.current.copy(XR1.current.position).add(W2.current.set(0, 0.3, 0))
           YC1.current.set(W1.current, V_DIR.current)
-          YC1.current.far = 0.6
-          const JZ1 = YC1.current.intersectObject(CJR1.current, true)
+          YC1.current.far = 0.8
+          const JZ1 = YC1.current.intersectObjects(CJ_MS.current)
           if (JZ1.length > 0) {
             KY1 = false
           }
@@ -175,7 +192,7 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1 }: MX1Props) {
               W3.current.copy(V_MB1.current).add(W2.current.set(0, 3, 0))
               YC2.current.set(W3.current, YD1.current)
               YC2.current.far = 6
-              const JZ2 = YC2.current.intersectObject(CJR1.current, true)
+              const JZ2 = YC2.current.intersectObjects(CJ_MS.current)
               if (JZ2.length > 0) {
                 const GD1 = JZ2[0].point.y
                 if (GD1 - XR1.current.position.y > 0.4) {
@@ -207,18 +224,21 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1 }: MX1Props) {
       KZR1.current.target.copy(XR1.current.position).add(W2.current.set(0, 1.3, 0))
       KZR1.current.update()
       
-      if (PL1.current % 2 === 1 && CJR1.current) {
+      if (PL1.current % 2 === 1 && CJ_MS.current.length > 0) {
         W1.current.copy(XR1.current.position).add(W2.current.set(0, 1.3, 0))
         W5.current.copy(camera.position).sub(W1.current)
         const CD1 = W5.current.length()
         W5.current.normalize()
         YC1.current.set(W1.current, W5.current)
         YC1.current.far = CD1
-        const JZ3 = YC1.current.intersectObject(CJR1.current, true)
+        const JZ3 = YC1.current.intersectObjects(CJ_MS.current)
         if (JZ3.length > 0) {
-          const FG1 = JZ3.find(h => h.object.name.toLowerCase().includes('house') || h.object.name.toLowerCase().includes('building') || h.object.name.includes('房'))
+          const FG1 = JZ3.find(h => {
+            const n = h.object.name.toLowerCase()
+            return n.includes('house') || n.includes('build') || n.includes('房') || n.includes('wall') || n.includes('roof') || n.includes('cube') || n.includes('mesh') || h.point.y > GD2.current + 0.5
+          })
           if (FG1) {
-            camera.position.copy(FG1.point)
+            camera.position.copy(FG1.point).add(W5.current.clone().multiplyScalar(-0.2))
           }
         }
       }
