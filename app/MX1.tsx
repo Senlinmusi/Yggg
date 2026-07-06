@@ -134,7 +134,9 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1, FG1 }: MX1Props) {
               color: 0xffffff,
               map: (c.material as any).map || null,
               roughness: 0.6,
-              metalness: 0.1
+              metalness: 0.1,
+              emissive: new THREE.Color(0x000000),
+              emissiveIntensity: 0.0
             })
           }
         })
@@ -168,6 +170,22 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1, FG1 }: MX1Props) {
         }
 
         m.mesh.visible = glow || FG1
+
+        m.mesh.traverse(c => {
+          if (c instanceof THREE.Mesh && c.material) {
+            const mat = c.material as THREE.MeshStandardMaterial
+            if (FG1) {
+              mat.emissive.setHex(0xffffff)
+              mat.emissiveIntensity = 3.5
+            } else if (glow) {
+              mat.emissive.setHex(0xffffff)
+              mat.emissiveIntensity = 1.2
+            } else {
+              mat.emissive.setHex(0x000000)
+              mat.emissiveIntensity = 0.0
+            }
+          }
+        })
 
         if (dist < 1.2) {
           m.collected = true
