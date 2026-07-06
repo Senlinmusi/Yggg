@@ -4,7 +4,7 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 
-export default function MX1({ FX1, KZR1, CJR1 }: { FX1: THREE.Vector3, KZR1: any, CJR1: any }) {
+export default function MX1({ FX1, KZR1, CJR1, SD1 }: { FX1: THREE.Vector3, KZR1: any, CJR1: any, SD1: boolean }) {
   const M1 = useGLTF('/walk.glb')
   const M2 = useGLTF('/wait.glb')
   const { actions: A1 } = useAnimations(M1.animations, M1.scene)
@@ -37,7 +37,7 @@ export default function MX1({ FX1, KZR1, CJR1 }: { FX1: THREE.Vector3, KZR1: any
       
       const MB1 = XR1.current.position.clone().add(step)
       
-      if (Math.abs(MB1.x) < 20 && Math.abs(MB1.z) < 20) {
+      if (Math.abs(MB1.x) < 120 && Math.abs(MB1.z) < 120) {
         XR1.current.position.add(step)
         camera.position.add(step)
         if (KZR1.current) {
@@ -70,7 +70,8 @@ export default function MX1({ FX1, KZR1, CJR1 }: { FX1: THREE.Vector3, KZR1: any
     <group ref={XR1} scale={1.2}>
       <primitive object={M1.scene} visible={ZT1} />
       <primitive object={M2.scene} visible={!ZT1} />
-      <pointLight position={[0, 2, 0]} intensity={0.6} distance={10} color="#ffffff" />
+      <pointLight position={[0, 2, 0]} intensity={0.4} distance={10} color="#ffffff" />
+      {SD1 && <pointLight position={[0, 1.2, 2]} intensity={6} distance={25} color="#ffffff" />}
     </group>
   )
 }

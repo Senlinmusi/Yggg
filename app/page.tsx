@@ -11,6 +11,7 @@ function YX2() {
   const [XY1, SX2] = useState({ x: 0, y: 0 })
   const [JD1, SJ1] = useState(0.5)
   const [JD2, SJ2] = useState(0.5)
+  const [SD1, SSD1] = useState(false)
   const KZR1 = useRef<any>(null)
   const CJ1 = useGLTF('/cjjj.glb')
   const CJR1 = useRef<THREE.Group>(null)
@@ -22,7 +23,7 @@ function YX2() {
       CJ1.scene.traverse(c => {
         if (c instanceof THREE.Mesh) {
           if (c.material) {
-            c.material.roughness = 0.5
+            c.material.roughness = 0.6
             c.material.metalness = 0.1
           }
         }
@@ -65,6 +66,10 @@ function YX2() {
     SJ2(Math.max(0, Math.min(1, x)))
   }
 
+  const CZ5 = () => {
+    SSD1(p => !p)
+  }
+
   const angleY = Math.PI / 6 + JD1 * (Math.PI / 3)
   const angleX = Math.PI - (JD2 * Math.PI * 2)
 
@@ -76,14 +81,14 @@ function YX2() {
           gl={{ antialias: false, powerPreference: 'high-performance', depth: true }}
           dpr={1}
         >
-          <ambientLight intensity={0.6} color="#22223b" />
-          <directionalLight position={[10, 20, 10]} intensity={1.5} color="#9bb0ff" />
-          <hemisphereLight args={['#1a1a3a', '#080811', 0.8]} />
-          <Plane rotation={[-Math.PI / 2, 0, 0]} args={[200, 200]}>
-            <meshToonMaterial color="#050508" />
+          <ambientLight intensity={0.15} color="#111125" />
+          <directionalLight position={[10, 20, 10]} intensity={0.3} color="#556699" />
+          <hemisphereLight args={['#0a0a20', '#020208', 0.4]} />
+          <Plane rotation={[-Math.PI / 2, 0, 0]} args={[300, 300]}>
+            <meshToonMaterial color="#030305" />
           </Plane>
           <primitive object={CJ1.scene} ref={CJR1} />
-          <MX1 FX1={FX1} KZR1={KZR1} CJR1={CJR1} />
+          <MX1 FX1={FX1} KZR1={KZR1} CJR1={CJR1} SD1={SD1} />
           <OrbitControls 
             ref={KZR1} 
             target={[0, 1, 0]}
@@ -96,7 +101,7 @@ function YX2() {
           />
         </Canvas>
 
-        <div className="absolute bottom-10 left-10 flex items-center gap-6 z-50">
+        <div className="absolute bottom-6 left-8 flex items-end gap-6 z-50">
           <div 
             className="w-24 h-24 bg-white/5 backdrop-blur-md rounded-full border border-white/10 relative touch-none shrink-0" 
             onPointerDown={CZ1}
@@ -110,15 +115,24 @@ function YX2() {
             />
           </div>
 
-          <div 
-            className="w-48 h-8 bg-white/5 backdrop-blur-md rounded-full border border-white/10 relative touch-none"
-            onPointerDown={CZ4}
-            onPointerMove={CZ4}
-          >
+          <div className="flex flex-col items-center gap-3">
             <div 
-              className="absolute top-1/2 -translate-y-1/2 w-6 h-6 bg-white/80 shadow-lg rounded-full"
-              style={{ left: `calc(${JD2 * 100}% - 12px)` }}
-            />
+              className="w-14 h-14 bg-white/5 backdrop-blur-md rounded-full border border-white/10 flex items-center justify-center text-white text-lg font-sans font-medium select-none cursor-pointer active:scale-90 transition-transform shadow-lg"
+              onClick={CZ5}
+              style={{ backgroundColor: SD1 ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.05)' }}
+            >
+              K
+            </div>
+            <div 
+              className="w-44 h-8 bg-white/5 backdrop-blur-md rounded-full border border-white/10 relative touch-none"
+              onPointerDown={CZ4}
+              onPointerMove={CZ4}
+            >
+              <div 
+                className="absolute top-1/2 -translate-y-1/2 w-6 h-6 bg-white/80 shadow-lg rounded-full"
+                style={{ left: `calc(${JD2 * 100}% - 12px)` }}
+              />
+            </div>
           </div>
         </div>
 
