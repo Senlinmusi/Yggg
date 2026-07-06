@@ -32,9 +32,8 @@ function YX2() {
             c.material.roughness = 0.6
             c.material.metalness = 0.1
             if ((c.material as any).map) {
-              ;(c.material as any).alphaTest = 0.5
-              ;(c.material as any).transparent = true
-              ;(c.material as any).side = THREE.DoubleSide
+              ;(c.material as any).map.minFilter = THREE.NearestFilter
+              ;(c.material as any).map.magFilter = THREE.NearestFilter
             }
           }
         }
@@ -114,7 +113,7 @@ function YX2() {
         <Canvas 
           camera={{ position: [0, 3.8, -5.2], fov: 45 }}
           gl={{ antialias: false, powerPreference: 'high-performance', depth: true }}
-          dpr={1}
+          dpr={0.65}
         >
           <ambientLight intensity={0.12} color="#111125" />
           <directionalLight position={[10, 20, 10]} intensity={0.25} color="#556699" />

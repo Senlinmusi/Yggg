@@ -157,7 +157,7 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1 }: MX1Props) {
       V_STEP.current.copy(V_DIR.current).multiplyScalar(delta * 4)
       V_MB1.current.copy(XR1.current.position).add(V_STEP.current)
       
-      if (Math.abs(V_MB1.current.x) < 135 && Math.abs(V_MB1.current.z) < 127) {
+      if (Math.abs(V_MB1.current.x) < 130 && Math.abs(V_MB1.current.z) < 127) {
         let KY1 = true
         let ND1 = XR1.current.position.y
 
@@ -216,7 +216,10 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1 }: MX1Props) {
         YC1.current.far = CD1
         const JZ3 = YC1.current.intersectObject(CJR1.current, true)
         if (JZ3.length > 0) {
-          camera.position.copy(JZ3[0].point)
+          const FG1 = JZ3.find(h => h.object.name.toLowerCase().includes('house') || h.object.name.toLowerCase().includes('building') || h.object.name.includes('房'))
+          if (FG1) {
+            camera.position.copy(FG1.point)
+          }
         }
       }
     }
