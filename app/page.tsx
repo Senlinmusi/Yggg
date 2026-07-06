@@ -14,6 +14,8 @@ function YX2() {
   const [SD1, SSD1] = useState(false)
   const [JS1, SJS1] = useState('00:00')
   const [MJ1, SS1] = useState(0) 
+  const [FG1, SFG1] = useState(false)
+  const [CD1, SCD1] = useState(0)
   const KZR1 = useRef<any>(null)
   const CJ1 = useGLTF('/cjjj.glb')
   const CJR1 = useRef<THREE.Group>(null)
@@ -55,6 +57,13 @@ function YX2() {
     return () => clearInterval(IV1)
   }, [])
 
+  useEffect(() => {
+    if (CD1 > 0) {
+      const t = setTimeout(() => SCD1(CD1 - 1), 1000)
+      return () => clearTimeout(t)
+    }
+  }, [CD1])
+
   const CZ1 = (e: React.PointerEvent) => {
     e.currentTarget.setPointerCapture(e.pointerId)
     const r = e.currentTarget.getBoundingClientRect()
@@ -95,6 +104,16 @@ function YX2() {
     SSD1(p => !p)
   }
 
+  const CZ6 = (e: React.PointerEvent) => {
+    e.preventDefault()
+    if (CD1 > 0) return
+    SFG1(true)
+    SCD1(60)
+    setTimeout(() => {
+      SFG1(false)
+    }, 15000)
+  }
+
   const angleY = Math.PI / 6 + JD1 * (Math.PI / 3)
   const angleX = -(JD2 * Math.PI * 2)
 
@@ -122,7 +141,7 @@ function YX2() {
             <meshToonMaterial color="#030305" />
           </Plane>
           <primitive object={CJ1.scene} ref={CJR1} />
-          <MX1 FX1={FX1} KZR1={KZR1} CJR1={CJR1} SD1={SD1} SS1={SS1} />
+          <MX1 FX1={FX1} KZR1={KZR1} CJR1={CJR1} SD1={SD1} SS1={SS1} FG1={FG1} />
           <OrbitControls 
             ref={KZR1} 
             target={[0, 1.3, 0]}
@@ -150,12 +169,24 @@ function YX2() {
           </div>
 
           <div className="flex flex-col items-center gap-3">
-            <div 
-              className="w-14 h-14 bg-white/5 backdrop-blur-md rounded-full border border-white/10 flex items-center justify-center text-white text-lg font-sans font-medium select-none cursor-pointer active:scale-95 transition-transform shadow-lg"
-              onPointerDown={CZ5}
-              style={{ backgroundColor: SD1 ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.05)' }}
-            >
-              K
+            <div className="flex gap-4">
+              <div 
+                className="w-14 h-14 bg-white/5 backdrop-blur-md rounded-full border border-white/10 flex items-center justify-center text-white text-lg font-sans font-medium select-none cursor-pointer active:scale-95 transition-transform shadow-lg"
+                onPointerDown={CZ5}
+                style={{ backgroundColor: SD1 ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.05)' }}
+              >
+                K
+              </div>
+              <div 
+                className="w-14 h-14 bg-white/5 backdrop-blur-md rounded-full border border-white/10 flex flex-col items-center justify-center text-white text-xs font-sans font-medium select-none cursor-pointer active:scale-95 transition-transform shadow-lg"
+                onPointerDown={CZ6}
+                style={{ 
+                  backgroundColor: FG1 ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.05)',
+                  opacity: CD1 > 0 ? 0.6 : 1
+                }}
+              >
+                {CD1 > 0 ? `${CD1}s` : '技能'}
+              </div>
             </div>
             <div 
               className="w-44 h-8 bg-white/5 backdrop-blur-md rounded-full border border-white/10 relative touch-none"

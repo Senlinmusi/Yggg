@@ -10,9 +10,10 @@ interface MX1Props {
   CJR1: any
   SD1: boolean
   SS1: React.Dispatch<React.SetStateAction<number>>
+  FG1: boolean
 }
 
-export default function MX1({ FX1, KZR1, CJR1, SD1, SS1 }: MX1Props) {
+export default function MX1({ FX1, KZR1, CJR1, SD1, SS1, FG1 }: MX1Props) {
   const M1 = useGLTF('/walk.glb')
   const M2 = useGLTF('/wait.glb')
   const M3 = useGLTF('/jokers_mask.glb')
@@ -40,7 +41,6 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1 }: MX1Props) {
 
   const PL1 = useRef(0)
   const GD2 = useRef(0)
-  const CJ_MS = useRef<THREE.Object3D[]>([])
 
   useEffect(() => {
     [M1.scene, M2.scene].forEach(s => s.traverse(c => {
@@ -57,21 +57,15 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1 }: MX1Props) {
   useFrame((state, delta) => {
     if (!XR1.current) return
 
-    if (CJ_MS.current.length === 0 && CJR1.current) {
-      CJR1.current.traverse(c => {
-        if (c instanceof THREE.Mesh) CJ_MS.current.push(c)
-      })
-    }
-
     if (!SQ1.current && CJR1.current && M3.scene) {
       let rx = 0, rz = 0, ry = 0
-      for (let i = 0; i < 200; i++) {
+      for (let i = 0; i < 300; i++) {
         rx = (Math.random() - 0.5) * 220
         rz = (Math.random() - 0.5) * 220
         W3.current.set(rx, 40, rz)
         YC2.current.set(W3.current, YD1.current)
         YC2.current.far = 60
-        const JZ = YC2.current.intersectObjects(CJ_MS.current)
+        const JZ = YC2.current.intersectObject(CJR1.current, true)
         if (JZ.length > 0) {
           const hit = JZ[0]
           const name = hit.object.name.toLowerCase()
@@ -92,13 +86,13 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1 }: MX1Props) {
       const arr = []
       for (let i = 0; i < 5; i++) {
         let mx = 0, mz = 0, my = 0
-        for (let j = 0; j < 200; j++) {
+        for (let j = 0; j < 300; j++) {
           mx = (Math.random() - 0.5) * 220
           mz = (Math.random() - 0.5) * 220
           W3.current.set(mx, 40, mz)
           YC2.current.set(W3.current, YD1.current)
           YC2.current.far = 60
-          const JZ_M = YC2.current.intersectObjects(CJ_MS.current)
+          const JZ_M = YC2.current.intersectObject(CJR1.current, true)
           if (JZ_M.length > 0) {
             const hit = JZ_M[0]
             const name = hit.object.name.toLowerCase()
@@ -151,7 +145,25 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1 }: MX1Props) {
           }
         }
 
-        m.mesh.visible = glow
+        m.mesh.visible = glow || FG1
+
+        m.mesh.traverse(c => {
+          if (c instanceof THREE.Mesh && c.material) {
+            const mat = c.material as any
+            if (mat.emissive) {
+              if (FG1) {
+                mat.emissive.setHex(0xffffff)
+                mat.emissiveIntensity = 2.5
+              } else if (glow) {
+                mat.emissive.setHex(0xffffff)
+                mat.emissiveIntensity = 0.6
+              } else {
+                mat.emissive.setHex(0x000000)
+                mat.emissiveIntensity = 0.0
+              }
+            }
+          }
+        })
 
         if (dist < 1.2) {
           m.collected = true
@@ -182,7 +194,7 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1 }: MX1Props) {
           W1.current.copy(XR1.current.position).add(W2.current.set(0, 0.3, 0))
           YC1.current.set(W1.current, V_DIR.current)
           YC1.current.far = 0.8
-          const JZ1 = YC1.current.intersectObjects(CJ_MS.current)
+          const JZ1 = YC1.current.intersectObject(CJR1.current, true)
           if (JZ1.length > 0) {
             KY1 = false
           }
@@ -192,7 +204,7 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1 }: MX1Props) {
               W3.current.copy(V_MB1.current).add(W2.current.set(0, 3, 0))
               YC2.current.set(W3.current, YD1.current)
               YC2.current.far = 6
-              const JZ2 = YC2.current.intersectObjects(CJ_MS.current)
+              const JZ2 = YC2.current.intersectObject(CJR1.current, true)
               if (JZ2.length > 0) {
                 const GD1 = JZ2[0].point.y
                 if (GD1 - XR1.current.position.y > 0.4) {
@@ -224,14 +236,14 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1 }: MX1Props) {
       KZR1.current.target.copy(XR1.current.position).add(W2.current.set(0, 1.3, 0))
       KZR1.current.update()
       
-      if (PL1.current % 2 === 1 && CJ_MS.current.length > 0) {
+      if (PL1.current % 2 === 1 && CJR1.current) {
         W1.current.copy(XR1.current.position).add(W2.current.set(0, 1.3, 0))
         W5.current.copy(camera.position).sub(W1.current)
         const CD1 = W5.current.length()
         W5.current.normalize()
         YC1.current.set(W1.current, W5.current)
         YC1.current.far = CD1
-        const JZ3 = YC1.current.intersectObjects(CJ_MS.current)
+        const JZ3 = YC1.current.intersectObject(CJR1.current, true)
         if (JZ3.length > 0) {
           const FG1 = JZ3.find(h => {
             const n = h.object.name.toLowerCase()
