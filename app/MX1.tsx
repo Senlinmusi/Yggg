@@ -81,23 +81,28 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1, FG1 }: MX1Props) {
 
     if (!SQ1.current && CJR1.current && M3.scene) {
       let rx = 0, rz = 0, ry = 0
-      for (let i = 0; i < 300; i++) {
+      let pSuccess = false
+      for (let i = 0; i < 500; i++) {
         rx = (Math.random() - 0.5) * 220
         rz = (Math.random() - 0.5) * 220
-        W3.current.set(rx, 40, rz)
+        W3.current.set(rx, 120, rz)
         YC2.current.set(W3.current, YD1.current)
-        YC2.current.far = 60
+        YC2.current.far = 140
         const JZ = YC2.current.intersectObjects(CJ_MS.current)
         if (JZ.length > 0) {
           const hit = JZ[0]
           const name = hit.object.name.toLowerCase()
-          if (name.includes('house') || name.includes('build') || name.includes('房') || name.includes('roof') || hit.point.y > 1.0) {
+          const isB = name.includes('house') || name.includes('build') || name.includes('房') || name.includes('roof') || name.includes('wall') || name.includes('楼') || name.includes('box') || name.includes('cube') || name.includes('obstacle') || name.includes('mesh')
+          if (isB || hit.point.y > 0.5) {
             continue
           }
           ry = hit.point.y
+          pSuccess = true
           break
         }
       }
+      if (!pSuccess) { rx = 0; ry = 0; rz = 0; }
+      
       XR1.current.position.set(rx, ry, rz)
       GD2.current = ry
       camera.position.set(rx, ry + 3.8, rz - 5.2)
@@ -108,23 +113,28 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1, FG1 }: MX1Props) {
       const arr = []
       for (let i = 0; i < 5; i++) {
         let mx = 0, mz = 0, my = 0
-        for (let j = 0; j < 300; j++) {
+        let mSuccess = false
+        for (let j = 0; j < 500; j++) {
           mx = (Math.random() - 0.5) * 220
           mz = (Math.random() - 0.5) * 220
-          W3.current.set(mx, 40, mz)
+          W3.current.set(mx, 120, mz)
           YC2.current.set(W3.current, YD1.current)
-          YC2.current.far = 60
+          YC2.current.far = 140
           const JZ_M = YC2.current.intersectObjects(CJ_MS.current)
           if (JZ_M.length > 0) {
             const hit = JZ_M[0]
             const name = hit.object.name.toLowerCase()
-            if (name.includes('house') || name.includes('build') || name.includes('房') || name.includes('roof') || hit.point.y > 1.0) {
+            const isB = name.includes('house') || name.includes('build') || name.includes('房') || name.includes('roof') || name.includes('wall') || name.includes('楼') || name.includes('box') || name.includes('cube') || name.includes('obstacle') || name.includes('mesh')
+            if (isB || hit.point.y > 0.5) {
               continue
             }
             my = hit.point.y
+            mSuccess = true
             break
           }
         }
+        if (!mSuccess) { mx = (i - 2) * 6; my = 0; mz = (i - 2) * 6; }
+
         const clone = M3.scene.clone()
         clone.scale.set(0.08, 0.08, 0.08)
 
