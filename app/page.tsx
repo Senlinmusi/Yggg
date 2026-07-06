@@ -28,9 +28,16 @@ function YX2() {
 
       CJ1.scene.traverse(c => {
         if (c instanceof THREE.Mesh) {
+          c.matrixAutoUpdate = false
+          c.updateMatrix()
           if (c.material) {
             c.material.roughness = 0.6
             c.material.metalness = 0.1
+            if (c.name.toLowerCase().includes('leaf') || c.name.includes('树叶') || (c.material as any).transparent) {
+              ;(c.material as any).transparent = true
+              ;(c.material as any).alphaTest = 0.5
+              ;(c.material as any).side = THREE.DoubleSide
+            }
           }
         }
       })
