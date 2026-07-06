@@ -12,6 +12,7 @@ function YX2() {
   const [JD1, SJ1] = useState(0.5)
   const [JD2, SJ2] = useState(0.5)
   const [SD1, SSD1] = useState(false)
+  const [JS1, SJS1] = useState('00:00')
   const KZR1 = useRef<any>(null)
   const CJ1 = useGLTF('/cjjj.glb')
   const CJR1 = useRef<THREE.Group>(null)
@@ -30,6 +31,20 @@ function YX2() {
       })
     }
   }, [CJ1])
+
+  useEffect(() => {
+    let m = 0
+    let s = 0
+    const iv = setInterval(() => {
+      s++
+      if (s >= 60) {
+        s = 0
+        m++
+      }
+      SJS1(`${m < 10 ? '0' + m : m}:${s < 10 ? '0' + s : s}`)
+    }, 1000)
+    return () => clearInterval(iv)
+  }, [])
 
   const CZ1 = (e: React.PointerEvent) => {
     e.currentTarget.setPointerCapture(e.pointerId)
@@ -77,8 +92,12 @@ function YX2() {
   return (
     <div className="flex items-center justify-center w-screen h-screen bg-[#f0f0f0]">
       <div className="relative w-full h-full max-w-[360px] max-h-[640px] aspect-[9/16] bg-[#050508] shadow-lg overflow-hidden cursor-pointer">
+        <div className="absolute top-6 left-6 bg-white/5 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 text-white font-mono text-xs tracking-wider z-50 select-none">
+          {JS1}
+        </div>
+
         <Canvas 
-          camera={{ position: [0, 5, -6], fov: 45 }}
+          camera={{ position: [0, 3.8, -5.2], fov: 45 }}
           gl={{ antialias: false, powerPreference: 'high-performance', depth: true }}
           dpr={1}
         >
@@ -92,7 +111,7 @@ function YX2() {
           <MX1 FX1={FX1} KZR1={KZR1} CJR1={CJR1} SD1={SD1} />
           <OrbitControls 
             ref={KZR1} 
-            target={[0, 2.0, 0]}
+            target={[0, 1.3, 0]}
             enablePan={false} 
             enableZoom={true}
             minPolarAngle={angleY} 

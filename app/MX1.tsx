@@ -13,6 +13,10 @@ export default function MX1({ FX1, KZR1, CJR1, SD1 }: { FX1: THREE.Vector3, KZR1
   const YC1 = useRef(new THREE.Raycaster())
   const YC2 = useRef(new THREE.Raycaster())
   const YD1 = useRef(new THREE.Vector3(0, -1, 0))
+  const W1 = useRef(new THREE.Vector3())
+  const W2 = useRef(new THREE.Vector3())
+  const W3 = useRef(new THREE.Vector3())
+  const W4 = useRef(new THREE.Vector3(0, 1, 0))
   const { camera } = useThree()
 
   useEffect(() => {
@@ -35,26 +39,28 @@ export default function MX1({ FX1, KZR1, CJR1, SD1 }: { FX1: THREE.Vector3, KZR1
     
     if (FX1.length() > 0) {
       const angle = Math.atan2(camera.position.x - XR1.current.position.x, camera.position.z - XR1.current.position.z)
-      const dir = FX1.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), angle).normalize()
+      const dir = FX1.clone().applyAxisAngle(W4.current, angle).normalize()
       const step = dir.clone().multiplyScalar(delta * 4)
       const MB1 = XR1.current.position.clone().add(step)
       
-      if (Math.abs(MB1.x) < 130 && Math.abs(MB1.z) < 130) {
+      if (Math.abs(MB1.x) < 127 && Math.abs(MB1.z) < 127) {
         let KY1 = true
         let ND1 = XR1.current.position.y
 
         if (CJR1.current) {
-          YC1.current.set(XR1.current.position.clone().add(new THREE.Vector3(0, 0.45, 0)), dir)
+          W1.current.copy(XR1.current.position).add(W2.current.set(0, 0.45, 0))
+          YC1.current.set(W1.current, dir)
           YC1.current.far = 0.6
-          const JZ1 = YC1.current.intersectObjects(CJR1.current.children, true)
+          const JZ1 = YC1.current.intersectObject(CJR1.current, true)
           if (JZ1.length > 0) {
             KY1 = false
           }
 
           if (KY1) {
-            YC2.current.set(MB1.clone().add(new THREE.Vector3(0, 3, 0)), YD1.current)
+            W3.current.copy(MB1).add(W2.current.set(0, 3, 0))
+            YC2.current.set(W3.current, YD1.current)
             YC2.current.far = 6
-            const JZ2 = YC2.current.intersectObjects(CJR1.current.children, true)
+            const JZ2 = YC2.current.intersectObject(CJR1.current, true)
             if (JZ2.length > 0) {
               const GD1 = JZ2[0].point.y
               if (GD1 - XR1.current.position.y > 0.4) {
@@ -73,7 +79,7 @@ export default function MX1({ FX1, KZR1, CJR1, SD1 }: { FX1: THREE.Vector3, KZR1
           XR1.current.position.y = ND1
           camera.position.add(step)
           if (KZR1.current) {
-            KZR1.current.target.copy(XR1.current.position).add(new THREE.Vector3(0, 2.0, 0))
+            KZR1.current.target.copy(XR1.current.position).add(W2.current.set(0, 1.3, 0))
           }
         }
       }
