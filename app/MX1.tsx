@@ -38,6 +38,9 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1 }: MX1Props) {
   const MK1 = useRef<{ mesh: THREE.Group; collected: boolean }[]>([])
   const { camera } = useThree()
 
+  const PL1 = useRef(0)
+  const GD2 = useRef(0)
+
   useEffect(() => {
     [M1.scene, M2.scene].forEach(s => s.traverse(c => {
       if (c instanceof THREE.Mesh) {
@@ -61,20 +64,14 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1 }: MX1Props) {
         XR1.current.position.set(rx, 20, rz)
         YC2.current.set(XR1.current.position, YD1.current)
         YC2.current.far = 40
-        const JZ_A = YC2.current.intersectObject(CJR1.current, true)
-        let JZ = null
-        for (let k = 0; k < JZ_A.length; k++) {
-          const o = JZ_A[k].object
-          if (o.name.toLowerCase().includes('leaf') || o.name.includes('树叶') || (o.material as any).transparent) continue
-          JZ = JZ_A[k]
-          break
-        }
-        if (JZ) {
-          ry = JZ.point.y
+        const JZ = YC2.current.intersectObject(CJR1.current, true)
+        if (JZ.length > 0) {
+          ry = JZ[0].point.y
           if (ry < 0.5) break
         }
       }
       XR1.current.position.set(rx, ry, rz)
+      GD2.current = ry
       camera.position.set(rx, ry + 3.8, rz - 5.2)
       if (KZR1.current) {
         KZR1.current.target.copy(XR1.current.position).add(W2.current.set(0, 1.3, 0))
@@ -89,16 +86,9 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1 }: MX1Props) {
           W3.current.set(mx, 20, mz)
           YC2.current.set(W3.current, YD1.current)
           YC2.current.far = 40
-          const JZ_M_A = YC2.current.intersectObject(CJR1.current, true)
-          let JZ_M = null
-          for (let k = 0; k < JZ_M_A.length; k++) {
-            const o = JZ_M_A[k].object
-            if (o.name.toLowerCase().includes('leaf') || o.name.includes('树叶') || (o.material as any).transparent) continue
-            JZ_M = JZ_M_A[k]
-            break
-          }
-          if (JZ_M) {
-            my = JZ_M.point.y
+          const JZ_M = YC2.current.intersectObject(CJR1.current, true)
+          if (JZ_M.length > 0) {
+            my = JZ_M[0].point.y
             if (my < 0.5) break
           }
         }
@@ -167,7 +157,7 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1 }: MX1Props) {
       V_STEP.current.copy(V_DIR.current).multiplyScalar(delta * 4)
       V_MB1.current.copy(XR1.current.position).add(V_STEP.current)
       
-      if (Math.abs(V_MB1.current.x) < 140 && Math.abs(V_MB1.current.z) < 127) {
+      if (Math.abs(V_MB1.current.x) < 135 && Math.abs(V_MB1.current.z) < 127) {
         let KY1 = true
         let ND1 = XR1.current.position.y
 
@@ -175,39 +165,30 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1 }: MX1Props) {
           W1.current.copy(XR1.current.position).add(W2.current.set(0, 0.45, 0))
           YC1.current.set(W1.current, V_DIR.current)
           YC1.current.far = 0.6
-          const JZ1_A = YC1.current.intersectObject(CJR1.current, true)
-          let JZ1 = null
-          for (let i = 0; i < JZ1_A.length; i++) {
-            const o = JZ1_A[i].object
-            if (o.name.toLowerCase().includes('leaf') || o.name.includes('树叶') || (o.material as any).transparent) continue
-            JZ1 = JZ1_A[i]
-            break
-          }
-          if (JZ1) {
+          const JZ1 = YC1.current.intersectObject(CJR1.current, true)
+          if (JZ1.length > 0) {
             KY1 = false
           }
 
           if (KY1) {
-            W3.current.copy(V_MB1.current).add(W2.current.set(0, 3, 0))
-            YC2.current.set(W3.current, YD1.current)
-            YC2.current.far = 6
-            const JZ2_A = YC2.current.intersectObject(CJR1.current, true)
-            let JZ2 = null
-            for (let i = 0; i < JZ2_A.length; i++) {
-              const o = JZ2_A[i].object
-              if (o.name.toLowerCase().includes('leaf') || o.name.includes('树叶') || (o.material as any).transparent) continue
-              JZ2 = JZ2_A[i]
-              break
-            }
-            if (JZ2) {
-              const GD1 = JZ2.point.y
-              if (GD1 - XR1.current.position.y > 0.4) {
-                KY1 = false
+            if (PL1.current % 2 === 0) {
+              W3.current.copy(V_MB1.current).add(W2.current.set(0, 3, 0))
+              YC2.current.set(W3.current, YD1.current)
+              YC2.current.far = 6
+              const JZ2 = YC2.current.intersectObject(CJR1.current, true)
+              if (JZ2.length > 0) {
+                const GD1 = JZ2[0].point.y
+                if (GD1 - XR1.current.position.y > 0.4) {
+                  KY1 = false
+                } else {
+                  ND1 = GD1
+                  GD2.current = GD1
+                }
               } else {
-                ND1 = GD1
+                KY1 = false
               }
             } else {
-              KY1 = false
+              ND1 = GD2.current
             }
           }
         }
@@ -216,9 +197,6 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1 }: MX1Props) {
           XR1.current.position.copy(V_MB1.current)
           XR1.current.position.y = ND1
           camera.position.add(V_STEP.current)
-          if (KZR1.current) {
-            KZR1.current.target.copy(XR1.current.position).add(W2.current.set(0, 1.3, 0))
-          }
         }
       }
       W1.current.copy(XR1.current.position).add(V_DIR.current)
@@ -226,22 +204,23 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1 }: MX1Props) {
     }
 
     if (KZR1.current) {
+      KZR1.current.target.copy(XR1.current.position).add(W2.current.set(0, 1.3, 0))
       KZR1.current.update()
-      W1.current.copy(camera.position).sub(XR1.current.position).normalize()
-      YC1.current.set(XR1.current.position, W1.current)
-      YC1.current.far = camera.position.distanceTo(XR1.current.position)
-      const JZ_C = YC1.current.intersectObject(CJR1.current, true)
-      let JZ_G = null
-      for (let i = 0; i < JZ_C.length; i++) {
-        const o = JZ_C[i].object
-        if (o.name.toLowerCase().includes('leaf') || o.name.includes('树叶') || (o.material as any).transparent) continue
-        JZ_G = JZ_C[i]
-        break
-      }
-      if (JZ_G) {
-        camera.position.copy(JZ_G.point).add(W1.current.multiplyScalar(-0.2))
+      
+      if (PL1.current % 2 === 1 && CJR1.current) {
+        W1.current.copy(XR1.current.position).add(W2.current.set(0, 1.3, 0))
+        W5.current.copy(camera.position).sub(W1.current)
+        const CD1 = W5.current.length()
+        W5.current.normalize()
+        YC1.current.set(W1.current, W5.current)
+        YC1.current.far = CD1
+        const JZ3 = YC1.current.intersectObject(CJR1.current, true)
+        if (JZ3.length > 0) {
+          camera.position.copy(JZ3[0].point)
+        }
       }
     }
+    PL1.current++
   })
 
   const ZT1 = FX1.length() > 0

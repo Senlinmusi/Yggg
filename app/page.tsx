@@ -28,14 +28,12 @@ function YX2() {
 
       CJ1.scene.traverse(c => {
         if (c instanceof THREE.Mesh) {
-          c.matrixAutoUpdate = false
-          c.updateMatrix()
           if (c.material) {
             c.material.roughness = 0.6
             c.material.metalness = 0.1
-            if (c.name.toLowerCase().includes('leaf') || c.name.includes('树叶') || (c.material as any).transparent) {
-              ;(c.material as any).transparent = true
+            if ((c.material as any).map) {
               ;(c.material as any).alphaTest = 0.5
+              ;(c.material as any).transparent = true
               ;(c.material as any).side = THREE.DoubleSide
             }
           }
@@ -109,7 +107,7 @@ function YX2() {
         </div>
 
         <div className="absolute top-6 right-6 w-12 h-12 bg-white/5 backdrop-blur-md rounded-full border border-white/10 flex flex-col items-center justify-center text-white z-50 select-none shadow-lg transition-all duration-300">
-          <span className="text-sm font-bold leading-none font-mono">{MJ1}</span>
+          <span className="text-sm leading-none font-mono">{MJ1}</span>
           <span className="text-[9px] text-white/30 font-mono mt-0.5 scale-90">/5</span>
         </div>
 
