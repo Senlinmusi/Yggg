@@ -1,7 +1,7 @@
 'use client'
 import { useAnimations, useGLTF } from '@react-three/drei'
 import { useFrame, useThree } from '@react-three/fiber'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 
 interface MX1Props {
@@ -17,8 +17,10 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1, FG1 }: MX1Props) {
   const M1 = useGLTF('/walk.glb')
   const M2 = useGLTF('/wait.glb')
   const M3 = useGLTF('/jokers_mask.glb')
+  const M4 = useGLTF('/joker.glb')
   const { actions: A1 } = useAnimations(M1.animations, M1.scene)
   const { actions: A2 } = useAnimations(M2.animations, M2.scene)
+  const { actions: A4 } = useAnimations(M4.animations, M4.scene)
   const XR1 = useRef<THREE.Group>(null)
   const MKR1 = useRef<THREE.Group>(null)
   const YC1 = useRef(new THREE.Raycaster())
@@ -43,6 +45,8 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1, FG1 }: MX1Props) {
   const GD2 = useRef(0)
   const CJ_MS = useRef<THREE.Object3D[]>([])
 
+  const [isJokerState, setIsJokerState] = useState(false)
+
   useEffect(() => {
     [M1.scene, M2.scene].forEach(s => s.traverse(c => {
       if (c instanceof THREE.Mesh) {
@@ -50,10 +54,21 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1, FG1 }: MX1Props) {
           color: 0xffffff, 
           map: (c.material as any).map,
           gradientMap: null 
-            })
-          }
-        }))
-  }, [M1, M2])
+        })
+      }
+    }))
+    if (M4.scene) {
+      M4.scene.traverse(c => {
+        if (c instanceof THREE.Mesh) {
+          c.material = new THREE.MeshToonMaterial({
+            color: 0xffffff,
+            map: (c.material as any).map,
+            gradientMap: null
+          })
+        }
+      })
+    }
+  }, [M1, M2, M4])
 
   useFrame((state, delta) => {
     if (!XR1.current) return
@@ -144,7 +159,7 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1, FG1 }: MX1Props) {
         const dist = XR1.current!.position.distanceTo(m.mesh.position)
         
         let glow = false
-        if (SD1 && dist < 25) {
+        if (SD1 && dist < 15) {
           W5.current.copy(m.mesh.position).sub(XR1.current!.position).normalize()
           W6.current.set(0, 0, 1).applyQuaternion(XR1.current!.quaternion).normalize()
           if (W6.current.dot(W5.current) > 0.5) {
@@ -153,24 +168,6 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1, FG1 }: MX1Props) {
         }
 
         m.mesh.visible = glow || FG1
-
-        m.mesh.traverse(c => {
-          if (c instanceof THREE.Mesh && c.material) {
-            const mat = c.material as any
-            if (mat.emissive) {
-              if (FG1) {
-                mat.emissive.setHex(0xffffff)
-                mat.emissiveIntensity = 2.5
-              } else if (glow) {
-                mat.emissive.setHex(0xffffff)
-                mat.emissiveIntensity = 0.6
-              } else {
-                mat.emissive.setHex(0x000000)
-                mat.emissiveIntensity = 0.0
-              }
-            }
-          }
-        })
 
         if (dist < 1.2) {
           m.collected = true
@@ -184,6 +181,11 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1, FG1 }: MX1Props) {
 
       if (changed) {
         SS1(5 - (activeCount - 1))
+      }
+
+      const currentJoker = MK1.current.every(m => m.collected)
+      if (currentJoker !== isJokerState) {
+        setIsJokerState(currentJoker)
       }
     }
 
@@ -270,20 +272,45 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1, FG1 }: MX1Props) {
   useEffect(() => {
     const HD1 = A1[Object.keys(A1)[0]]
     const HD2 = A2[Object.keys(A2)[0]]
-    if (ZT1) { 
-      HD2?.fadeOut(0.2) 
-      HD1?.reset().fadeIn(0.2).play() 
-    } else { 
-      HD1?.fadeOut(0.2) 
-      HD2?.reset().fadeIn(0.2).play() 
+    
+    const keys4 = Object.keys(A4)
+    let J_walk = A4[keys4[0]]
+    let J_wait = A4[keys4[1]] || A4[keys4[0]]
+    keys4.forEach(k => {
+      const lk = k.toLowerCase()
+      if (lk.includes('walk') || lk.includes('run') || lk.includes('move')) J_walk = A4[k]
+      if (lk.includes('idle') || lk.includes('wait') || lk.includes('stay')) J_wait = A4[k]
+    })
+
+    if (isJokerState) {
+      HD1?.fadeOut(0.2)
+      HD2?.fadeOut(0.2)
+      if (ZT1) {
+        J_wait?.fadeOut(0.2)
+        J_walk?.reset().fadeIn(0.2).play()
+      } else {
+        J_walk?.fadeOut(0.2)
+        J_wait?.reset().fadeIn(0.2).play()
+      }
+    } else {
+      J_walk?.fadeOut(0.2)
+      J_wait?.fadeOut(0.2)
+      if (ZT1) { 
+        HD2?.fadeOut(0.2) 
+        HD1?.reset().fadeIn(0.2).play() 
+      } else { 
+        HD1?.fadeOut(0.2) 
+        HD2?.reset().fadeIn(0.2).play() 
+      }
     }
-  }, [ZT1, A1, A2])
+  }, [ZT1, A1, A2, A4, isJokerState])
 
   return (
     <>
       <group ref={XR1} scale={1.2}>
-        <primitive object={M1.scene} visible={ZT1} />
-        <primitive object={M2.scene} visible={!ZT1} />
+        <primitive object={M1.scene} visible={ZT1 && !isJokerState} />
+        <primitive object={M2.scene} visible={!ZT1 && !isJokerState} />
+        <primitive object={M4.scene} visible={isJokerState} />
         <pointLight position={[0, 2, 0]} intensity={0.1} distance={10} color="#ffffff" />
         {SD1 && <pointLight position={[0, 1.2, 1.5]} intensity={8} distance={30} color="#ffffff" />}
       </group>

@@ -132,7 +132,7 @@ function YX2() {
         <Canvas 
           camera={{ position: [0, 3.8, -5.2], fov: 45 }}
           gl={{ antialias: false, powerPreference: 'high-performance', depth: true }}
-          dpr={1.5}
+          dpr={1.0}
         >
           <ambientLight intensity={0.12} color="#111125" />
           <directionalLight position={[10, 20, 10]} intensity={0.25} color="#556699" />
