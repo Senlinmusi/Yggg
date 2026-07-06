@@ -132,7 +132,7 @@ function YX2() {
         <Canvas 
           camera={{ position: [0, 3.8, -5.2], fov: 45 }}
           gl={{ antialias: false, powerPreference: 'high-performance', depth: true }}
-          dpr={0.65}
+          dpr={1.5}
         >
           <ambientLight intensity={0.12} color="#111125" />
           <directionalLight position={[10, 20, 10]} intensity={0.25} color="#556699" />
@@ -144,7 +144,7 @@ function YX2() {
           <MX1 FX1={FX1} KZR1={KZR1} CJR1={CJR1} SD1={SD1} SS1={SS1} FG1={FG1} />
           <OrbitControls 
             ref={KZR1} 
-            target={[0, 1.3, 0]}
+            target={[0, 1.8, 0]}
             enablePan={false} 
             enableZoom={true}
             minPolarAngle={angleY} 
@@ -185,7 +185,7 @@ function YX2() {
                   opacity: CD1 > 0 ? 0.6 : 1
                 }}
               >
-                {CD1 > 0 ? `${CD1}s` : '技能'}
+                {CD1 > 0 ? `${CD1}s` : 'M'}
               </div>
             </div>
             <div 
