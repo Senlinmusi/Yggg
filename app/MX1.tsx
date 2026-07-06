@@ -10,6 +10,8 @@ export default function MX1({ FX1, KZR1, CJR1, SD1 }: { FX1: THREE.Vector3, KZR1
   const { actions: A1 } = useAnimations(M1.animations, M1.scene)
   const { actions: A2 } = useAnimations(M2.animations, M2.scene)
   const XR1 = useRef<THREE.Group>(null)
+  const YC2 = useRef(new THREE.Raycaster())
+  const YD1 = useRef(new THREE.Vector3(0, -1, 0))
   const { camera } = useThree()
 
   useEffect(() => {
@@ -41,8 +43,9 @@ export default function MX1({ FX1, KZR1, CJR1, SD1 }: { FX1: THREE.Vector3, KZR1
         let ND1 = XR1.current.position.y
 
         if (CJR1.current) {
-          const YC2 = new THREE.Raycaster(mb1.clone().add(new THREE.Vector3(0, 5, 0)), new THREE.Vector3(0, -1, 0), 0, 10)
-          const JZ2 = YC2.intersectObjects(CJR1.current.children, true)
+          YC2.current.set(MB1.clone().add(new THREE.Vector3(0, 3, 0)), YD1.current)
+          YC2.current.far = 6
+          const JZ2 = YC2.current.intersectObjects(CJR1.current.children, true)
           if (JZ2.length > 0) {
             const GD1 = JZ2[0].point.y
             if (GD1 - XR1.current.position.y > 0.4) {
@@ -60,7 +63,7 @@ export default function MX1({ FX1, KZR1, CJR1, SD1 }: { FX1: THREE.Vector3, KZR1
           XR1.current.position.y = ND1
           camera.position.add(step)
           if (KZR1.current) {
-            KZR1.current.target.copy(XR1.current.position).add(new THREE.Vector3(0, 1.5, 0))
+            KZR1.current.target.copy(XR1.current.position).add(new THREE.Vector3(0, 1, 0))
           }
         }
       }
@@ -90,8 +93,8 @@ export default function MX1({ FX1, KZR1, CJR1, SD1 }: { FX1: THREE.Vector3, KZR1
     <group ref={XR1} scale={1.2}>
       <primitive object={M1.scene} visible={ZT1} />
       <primitive object={M2.scene} visible={!ZT1} />
-      <pointLight position={[0, 2, 0]} intensity={0.05} distance={10} color="#ffffff" />
-      {SD1 && <pointLight position={[0, 1.2, 1.5]} intensity={8} distance={32} color="#ffffff" />}
+      <pointLight position={[0, 2, 0]} intensity={0.1} distance={10} color="#ffffff" />
+      {SD1 && <pointLight position={[0, 1.2, 1.5]} intensity={8} distance={30} color="#ffffff" />}
     </group>
   )
 }
