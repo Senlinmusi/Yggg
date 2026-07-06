@@ -11,18 +11,27 @@ interface MX1Props {
   SD1: boolean
   SS1: React.Dispatch<React.SetStateAction<number>>
   FG1: boolean
+  FF1: boolean
+  monsterDisabled: boolean
+  onGameOver: () => void
+  isGameOver: boolean
 }
 
-export default function MX1({ FX1, KZR1, CJR1, SD1, SS1, FG1 }: MX1Props) {
+export default function MX1({ FX1, KZR1, CJR1, SD1, SS1, FG1, FF1, monsterDisabled, onGameOver, isGameOver }: MX1Props) {
   const M1 = useGLTF('/walk.glb')
   const M2 = useGLTF('/wait.glb')
   const M3 = useGLTF('/jokers_mask.glb')
   const M4 = useGLTF('/joker.glb')
+  const M5 = useGLTF('/jackfrost.glb')
+  
   const { actions: A1 } = useAnimations(M1.animations, M1.scene)
   const { actions: A2 } = useAnimations(M2.animations, M2.scene)
   const { actions: A4 } = useAnimations(M4.animations, M4.scene)
+  
   const XR1 = useRef<THREE.Group>(null)
   const MKR1 = useRef<THREE.Group>(null)
+  const MSR1 = useRef<THREE.Group>(null)
+  
   const YC1 = useRef(new THREE.Raycaster())
   const YC2 = useRef(new THREE.Raycaster())
   const YD1 = useRef(new THREE.Vector3(0, -1, 0))
@@ -46,6 +55,11 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1, FG1 }: MX1Props) {
   const CJ_MS = useRef<THREE.Object3D[]>([])
 
   const [isJokerState, setIsJokerState] = useState(false)
+  
+  const MS_INIT = useRef(false)
+  const MS_STATE = useRef<'patrol' | 'chase'>('patrol')
+  const MS_PATROL_TARGET = useRef(new THREE.Vector3())
+  const MS_DIR = useRef(new THREE.Vector3())
 
   useEffect(() => {
     [M1.scene, M2.scene].forEach(s => s.traverse(c => {
@@ -68,10 +82,17 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1, FG1 }: MX1Props) {
         }
       })
     }
-  }, [M1, M2, M4])
+    if (M5.scene) {
+      M5.scene.traverse(c => {
+        if (c instanceof THREE.Mesh) {
+          c.material.roughness = 0.5
+        }
+      })
+    }
+  }, [M1, M2, M4, M5])
 
   useFrame((state, delta) => {
-    if (!XR1.current) return
+    if (!XR1.current || isGameOver) return
 
     if (CJ_MS.current.length === 0 && CJR1.current) {
       CJR1.current.traverse(c => {
@@ -92,7 +113,7 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1, FG1 }: MX1Props) {
         if (JZ.length > 0) {
           const hit = JZ[0]
           const name = hit.object.name.toLowerCase()
-          const isB = name.includes('house') || name.includes('build') || name.includes('房') || name.includes('roof') || name.includes('wall') || name.includes('楼') || name.includes('box') || name.includes('cube') || name.includes('obstacle') || name.includes('mesh')
+          const isB = name.includes('house') || name.includes('build') || name.includes('roof') || name.includes('wall') || name.includes('box') || name.includes('cube') || name.includes('obstacle') || name.includes('mesh')
           if (isB || hit.point.y > 0.5) {
             continue
           }
@@ -124,7 +145,7 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1, FG1 }: MX1Props) {
           if (JZ_M.length > 0) {
             const hit = JZ_M[0]
             const name = hit.object.name.toLowerCase()
-            const isB = name.includes('house') || name.includes('build') || name.includes('房') || name.includes('roof') || name.includes('wall') || name.includes('楼') || name.includes('box') || name.includes('cube') || name.includes('obstacle') || name.includes('mesh')
+            const isB = name.includes('house') || name.includes('build') || name.includes('roof') || name.includes('wall') || name.includes('box') || name.includes('cube') || name.includes('obstacle') || name.includes('mesh')
             if (isB || hit.point.y > 0.5) {
               continue
             }
@@ -157,6 +178,30 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1, FG1 }: MX1Props) {
         arr.push({ mesh: clone, collected: false })
       }
       MK1.current = arr
+
+      let mx_m = 0, mz_m = 0, my_m = 0
+      for (let j = 0; j < 500; j++) {
+        mx_m = (Math.random() - 0.5) * 160
+        mz_m = (Math.random() - 0.5) * 160
+        if (Math.abs(mx_m - rx) < 25 && Math.abs(mz_m - rz) < 25) continue
+        W3.current.set(mx_m, 120, mz_m)
+        YC2.current.set(W3.current, YD1.current)
+        YC2.current.far = 140
+        const JZ_MS = YC2.current.intersectObjects(CJ_MS.current)
+        if (JZ_MS.length > 0) {
+          const hit = JZ_MS[0]
+          const name = hit.object.name.toLowerCase()
+          const isB = name.includes('house') || name.includes('build') || name.includes('roof') || name.includes('wall') || name.includes('box') || name.includes('cube') || name.includes('obstacle') || name.includes('mesh')
+          if (isB || hit.point.y > 0.5) continue
+          my_m = hit.point.y
+          break
+        }
+      }
+      if (MSR1.current) {
+        MSR1.current.position.set(mx_m, my_m, mz_m)
+        MS_PATROL_TARGET.current.copy(MSR1.current.position)
+      }
+      MS_INIT.current = true
       SQ1.current = true
     }
     
@@ -214,6 +259,82 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1, FG1 }: MX1Props) {
       const currentJoker = MK1.current.every(m => m.collected)
       if (currentJoker !== isJokerState) {
         setIsJokerState(currentJoker)
+      }
+    }
+
+    if (MS_INIT.current && MSR1.current && !monsterDisabled) {
+      const distToPlayer = XR1.current.position.distanceTo(MSR1.current.position)
+      
+      W6.current.set(0, 0, 1).applyQuaternion(XR1.current.quaternion).normalize()
+      W5.current.copy(MSR1.current.position).sub(XR1.current.position).normalize()
+      const isLookedAt = W6.current.dot(W5.current) > 0.55
+      
+      const isFrozen = FF1 || isLookedAt
+
+      if (!isFrozen) {
+        if (distToPlayer < 35) {
+          MS_STATE.current = 'chase'
+        } else if (distToPlayer > 48) {
+          MS_STATE.current = 'patrol'
+        }
+
+        let speed = delta * 4.6
+        let targetPos = W1.current
+
+        if (MS_STATE.current === 'chase') {
+          targetPos.copy(XR1.current.position)
+        } else {
+          if (MSR1.current.position.distanceTo(MS_PATROL_TARGET.current) < 2) {
+            const rx = (Math.random() - 0.5) * 50
+            const rz = (Math.random() - 0.5) * 50
+            MS_PATROL_TARGET.current.copy(MSR1.current.position).add(new THREE.Vector3(rx, 0, rz))
+          }
+          targetPos.copy(MS_PATROL_TARGET.current)
+        }
+
+        MS_DIR.current.copy(targetPos).sub(MSR1.current.position)
+        MS_DIR.current.y = 0
+        if (MS_DIR.current.lengthSq() > 0.01) {
+          MS_DIR.current.normalize()
+          
+          let canMove = true
+          if (CJ_MS.current.length > 0) {
+            W3.current.copy(MSR1.current.position).add(W2.current.set(0, 0.5, 0))
+            YC1.current.set(W3.current, MS_DIR.current)
+            YC1.current.far = 1.3
+            const hits = YC1.current.intersectObjects(CJ_MS.current)
+            if (hits.length > 0) {
+              canMove = false
+              if (MS_STATE.current === 'patrol') {
+                MS_PATROL_TARGET.current.copy(MSR1.current.position)
+              }
+            }
+          }
+
+          if (canMove) {
+            MSR1.current.position.addScaledVector(MS_DIR.current, speed)
+            if (PL1.current % 3 === 0 && CJ_MS.current.length > 0) {
+              W3.current.copy(MSR1.current.position).setY(120)
+              YC2.current.set(W3.current, YD1.current)
+              YC2.current.far = 140
+              const groundHits = YC2.current.intersectObjects(CJ_MS.current)
+              if (groundHits.length > 0) {
+                const h = groundHits[0]
+                const n = h.object.name.toLowerCase()
+                const isB = n.includes('house') || n.includes('build') || n.includes('roof') || n.includes('wall') || n.includes('box') || n.includes('cube') || n.includes('obstacle') || n.includes('mesh')
+                if (!isB && h.point.y <= 0.6) {
+                  MSR1.current.position.y = h.point.y
+                }
+              }
+            }
+            W3.current.copy(MSR1.current.position).add(MS_DIR.current)
+            MSR1.current.lookAt(W3.current)
+          }
+        }
+      }
+
+      if (distToPlayer < 1.3) {
+        onGameOver()
       }
     }
 
@@ -284,7 +405,7 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1, FG1 }: MX1Props) {
         if (JZ3.length > 0) {
           const FG1 = JZ3.find(h => {
             const n = h.object.name.toLowerCase()
-            return n.includes('house') || n.includes('build') || n.includes('房') || n.includes('wall') || n.includes('roof') || n.includes('cube') || n.includes('mesh') || h.point.y > GD2.current + 0.5
+            return n.includes('house') || n.includes('build') || n.includes('wall') || n.includes('roof') || n.includes('cube') || n.includes('mesh') || h.point.y > GD2.current + 0.5
           })
           if (FG1) {
             camera.position.copy(FG1.point).add(W5.current.clone().multiplyScalar(-0.2))
@@ -343,6 +464,11 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1, FG1 }: MX1Props) {
         {SD1 && <pointLight position={[0, 1.2, 1.5]} intensity={8} distance={30} color="#ffffff" />}
       </group>
       <group ref={MKR1} />
+      {(!monsterDisabled && M5.scene) && (
+        <group ref={MSR1} scale={1.1}>
+          <primitive object={M5.scene} />
+        </group>
+      )}
     </>
   )
 }

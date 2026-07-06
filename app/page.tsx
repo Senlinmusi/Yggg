@@ -16,9 +16,26 @@ function YX2() {
   const [MJ1, SS1] = useState(0) 
   const [FG1, SFG1] = useState(false)
   const [CD1, SCD1] = useState(0)
+  
+  const [FT1, SFT1] = useState(0)
+  const [FF1, SFF1] = useState(false)
+  const [isGameOver, setIsGameOver] = useState(false)
+  const [monsterDisabled, setMonsterDisabled] = useState(false)
+  const debugKeys = useRef<string[]>([])
+
   const KZR1 = useRef<any>(null)
   const CJ1 = useGLTF('/cjjj.glb')
   const CJR1 = useRef<THREE.Group>(null)
+
+  const checkDebug = (key: string) => {
+    debugKeys.current.push(key)
+    if (debugKeys.current.length > 6) {
+      debugKeys.current.shift()
+    }
+    if (debugKeys.current.join('') === 'MMKKFF') {
+      setMonsterDisabled(true)
+    }
+  }
 
   useEffect(() => {
     document.title = '1'
@@ -44,6 +61,7 @@ function YX2() {
   }, [CJ1])
 
   useEffect(() => {
+    if (isGameOver) return
     let m = 0
     let s = 0
     const IV1 = setInterval(() => {
@@ -55,7 +73,7 @@ function YX2() {
       SJS1(`${m < 10 ? '0' + m : m}:${s < 10 ? '0' + s : s}`)
     }, 1000)
     return () => clearInterval(IV1)
-  }, [])
+  }, [isGameOver])
 
   useEffect(() => {
     if (CD1 > 0) {
@@ -64,7 +82,19 @@ function YX2() {
     }
   }, [CD1])
 
+  useEffect(() => {
+    if (FT1 > 0) {
+      const t = setTimeout(() => {
+        const next = FT1 - 1
+        SFT1(next)
+        if (next === 0) SFF1(false)
+      }, 1000)
+      return () => clearTimeout(t)
+    }
+  }, [FT1])
+
   const CZ1 = (e: React.PointerEvent) => {
+    if (isGameOver) return
     e.currentTarget.setPointerCapture(e.pointerId)
     const r = e.currentTarget.getBoundingClientRect()
     const x = (e.clientX - r.left - 48) / 48
@@ -101,11 +131,15 @@ function YX2() {
 
   const CZ5 = (e: React.PointerEvent) => {
     e.preventDefault()
+    if (isGameOver) return
+    checkDebug('K')
     SSD1(p => !p)
   }
 
   const CZ6 = (e: React.PointerEvent) => {
     e.preventDefault()
+    if (isGameOver) return
+    checkDebug('M')
     if (CD1 > 0) return
     SFG1(true)
     SCD1(60)
@@ -114,10 +148,17 @@ function YX2() {
     }, 15000)
   }
 
+  const CZ7 = (e: React.PointerEvent) => {
+    e.preventDefault()
+    if (isGameOver) return
+    checkDebug('F')
+    if (FT1 > 0) return
+    SFF1(true)
+    SFT1(15)
+  }
+
   const angleY = Math.PI / 6 + JD1 * (Math.PI / 3)
   const angleX = -(JD2 * Math.PI * 2)
-
-  const isDaytime = MJ1 === 5
 
   return (
     <div className="flex items-center justify-center w-screen h-screen bg-[#f0f0f0]">
@@ -136,14 +177,25 @@ function YX2() {
           gl={{ antialias: false, powerPreference: 'high-performance', depth: true }}
           dpr={1.0}
         >
-          <ambientLight intensity={isDaytime ? 0.85 : 0.12} color={isDaytime ? "#ffffff" : "#111125"} />
-          <directionalLight position={[10, 20, 10]} intensity={isDaytime ? 1.3 : 0.25} color={isDaytime ? "#fff5ea" : "#556699"} />
-          <hemisphereLight args={isDaytime ? ['#ffffff', '#999999', 0.6] : ['#0a0a20', '#020208', 0.3]} />
+          <ambientLight intensity={0.12} color="#111125" />
+          <directionalLight position={[10, 20, 10]} intensity={0.25} color="#556699" />
+          <hemisphereLight args={['#0a0a20', '#020208', 0.3]} />
           <Plane rotation={[-Math.PI / 2, 0, 0]} args={[350, 350]}>
-            <meshToonMaterial color={isDaytime ? "#557a46" : "#030305"} />
+            <meshToonMaterial color="#030305" />
           </Plane>
           <primitive object={CJ1.scene} ref={CJR1} />
-          <MX1 FX1={FX1} KZR1={KZR1} CJR1={CJR1} SD1={SD1} SS1={SS1} FG1={FG1} />
+          <MX1 
+            FX1={FX1} 
+            KZR1={KZR1} 
+            CJR1={CJR1} 
+            SD1={SD1} 
+            SS1={SS1} 
+            FG1={FG1} 
+            FF1={FF1}
+            monsterDisabled={monsterDisabled}
+            onGameOver={() => setIsGameOver(true)}
+            isGameOver={isGameOver}
+          />
           <OrbitControls 
             ref={KZR1} 
             target={[0, 1.8, 0]}
@@ -156,7 +208,7 @@ function YX2() {
           />
         </Canvas>
 
-        <div className="absolute bottom-6 left-8 flex items-end gap-6 z-50">
+        <div className="absolute bottom-6 left-8 flex items-end gap-5 z-50">
           <div 
             className="w-24 h-24 bg-white/5 backdrop-blur-md rounded-full border border-white/10 relative touch-none shrink-0" 
             onPointerDown={CZ1}
@@ -171,16 +223,16 @@ function YX2() {
           </div>
 
           <div className="flex flex-col items-center gap-3">
-            <div className="flex gap-4">
+            <div className="flex gap-2">
               <div 
-                className="w-14 h-14 bg-white/5 backdrop-blur-md rounded-full border border-white/10 flex items-center justify-center text-white text-lg font-sans font-medium select-none cursor-pointer active:scale-95 transition-transform shadow-lg"
+                className="w-12 h-12 bg-white/5 backdrop-blur-md rounded-full border border-white/10 flex items-center justify-center text-white text-base font-sans font-medium select-none cursor-pointer active:scale-95 transition-transform shadow-lg shrink-0"
                 onPointerDown={CZ5}
                 style={{ backgroundColor: SD1 ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.05)' }}
               >
                 K
               </div>
               <div 
-                className="w-14 h-14 bg-white/5 backdrop-blur-md rounded-full border border-white/10 flex flex-col items-center justify-center text-white text-xs font-sans font-medium select-none cursor-pointer active:scale-95 transition-transform shadow-lg"
+                className="w-12 h-12 bg-white/5 backdrop-blur-md rounded-full border border-white/10 flex flex-col items-center justify-center text-white text-xs font-sans font-medium select-none cursor-pointer active:scale-95 transition-transform shadow-lg shrink-0"
                 onPointerDown={CZ6}
                 style={{ 
                   backgroundColor: FG1 ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.05)',
@@ -189,9 +241,19 @@ function YX2() {
               >
                 {CD1 > 0 ? `${CD1}s` : 'M'}
               </div>
+              <div 
+                className="w-12 h-12 bg-white/5 backdrop-blur-md rounded-full border border-white/10 flex flex-col items-center justify-center text-white text-xs font-sans font-medium select-none cursor-pointer active:scale-95 transition-transform shadow-lg shrink-0"
+                onPointerDown={CZ7}
+                style={{ 
+                  backgroundColor: FF1 ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.05)',
+                  opacity: FT1 > 0 ? 0.6 : 1
+                }}
+              >
+                {FT1 > 0 ? `${FT1}s` : 'F'}
+              </div>
             </div>
             <div 
-              className="w-44 h-8 bg-white/5 backdrop-blur-md rounded-full border border-white/10 relative touch-none"
+              className="w-40 h-8 bg-white/5 backdrop-blur-md rounded-full border border-white/10 relative touch-none"
               onPointerDown={CZ4}
               onPointerMove={CZ4}
             >
@@ -213,6 +275,14 @@ function YX2() {
             style={{ top: `calc(${JD1 * 100}% - 12px)` }}
           />
         </div>
+
+        {isGameOver && (
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center animate-fade-in select-none">
+            <h1 className="text-white text-3xl font-mono font-bold tracking-widest drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
+              Game Over
+            </h1>
+          </div>
+        )}
       </div>
     </div>
   )
