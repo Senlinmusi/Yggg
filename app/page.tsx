@@ -13,6 +13,7 @@ function YX2() {
   const [JD2, SJ2] = useState(0.5)
   const [SD1, SSD1] = useState(false)
   const [JS1, SJS1] = useState('00:00')
+  const [MJCount, setMJCount] = useState(0) // 收集数量全局状态
   const KZR1 = useRef<any>(null)
   const CJ1 = useGLTF('/cjjj.glb')
   const CJR1 = useRef<THREE.Group>(null)
@@ -20,7 +21,12 @@ function YX2() {
   useEffect(() => {
     document.title = '1'
     if (CJ1.scene) {
-      CJ1.scene.position.set(0, 0, 0)
+      // 高级智能对齐：自动计算模型物理边界，强制将地图横向几何中心校准到 (0,0) 点
+      const box = new THREE.Box3().setFromObject(CJ1.scene)
+      const center = new THREE.Vector3()
+      box.getCenter(center)
+      CJ1.scene.position.set(-center.x, 0, -center.z)
+
       CJ1.scene.traverse(c => {
         if (c instanceof THREE.Mesh) {
           if (c.material) {
@@ -92,8 +98,15 @@ function YX2() {
   return (
     <div className="flex items-center justify-center w-screen h-screen bg-[#f0f0f0]">
       <div className="relative w-full h-full max-w-[360px] max-h-[640px] aspect-[9/16] bg-[#050508] shadow-lg overflow-hidden cursor-pointer">
+        {/* 左上角：计时器 */}
         <div className="absolute top-6 left-6 bg-white/5 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 text-white font-mono text-xs tracking-wider z-50 select-none">
           {JS1}
+        </div>
+
+        {/* 右上角：高级磨砂毛玻璃圆形面具收集计数器 */}
+        <div className="absolute top-6 right-6 w-12 h-12 bg-white/5 backdrop-blur-md rounded-full border border-white/10 flex flex-col items-center justify-center text-white z-50 select-none shadow-lg transition-all duration-300">
+          <span className="text-sm font-bold leading-none font-sans">{MJCount}</span>
+          <span className="text-[9px] text-white/30 font-mono mt-0.5 scale-90">/5</span>
         </div>
 
         <Canvas 
@@ -108,7 +121,7 @@ function YX2() {
             <meshToonMaterial color="#030305" />
           </Plane>
           <primitive object={CJ1.scene} ref={CJR1} />
-          <MX1 FX1={FX1} KZR1={KZR1} CJR1={CJR1} SD1={SD1} />
+          <MX1 FX1={FX1} KZR1={KZR1} CJR1={CJR1} SD1={SD1} setMJCount={setMJCount} />
           <OrbitControls 
             ref={KZR1} 
             target={[0, 1.3, 0]}
@@ -121,6 +134,7 @@ function YX2() {
           />
         </Canvas>
 
+        {/* 底部摇杆与UI控制区 */}
         <div className="absolute bottom-6 left-8 flex items-end gap-6 z-50">
           <div 
             className="w-24 h-24 bg-white/5 backdrop-blur-md rounded-full border border-white/10 relative touch-none shrink-0" 

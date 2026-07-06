@@ -4,7 +4,15 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 
-export default function MX1({ FX1, KZR1, CJR1, SD1 }: { FX1: THREE.Vector3, KZR1: any, CJR1: any, SD1: boolean }) {
+interface MX1Props {
+  FX1: THREE.Vector3
+  KZR1: any
+  CJR1: any
+  SD1: boolean
+  setMJCount: React.Dispatch<React.SetStateAction<number>>
+}
+
+export default function MX1({ FX1, KZR1, CJR1, SD1, setMJCount }: MX1Props) {
   const M1 = useGLTF('/walk.glb')
   const M2 = useGLTF('/wait.glb')
   const M3 = useGLTF('/jokers_mask.glb')
@@ -15,12 +23,18 @@ export default function MX1({ FX1, KZR1, CJR1, SD1 }: { FX1: THREE.Vector3, KZR1
   const YC1 = useRef(new THREE.Raycaster())
   const YC2 = useRef(new THREE.Raycaster())
   const YD1 = useRef(new THREE.Vector3(0, -1, 0))
+  
+  // 极致性能优化：预留常驻内存向量，彻底杜绝 useFrame 内部 clone() 带来的 GC 卡顿
   const W1 = useRef(new THREE.Vector3())
   const W2 = useRef(new THREE.Vector3())
   const W3 = useRef(new THREE.Vector3())
   const W4 = useRef(new THREE.Vector3(0, 1, 0))
   const W5 = useRef(new THREE.Vector3())
   const W6 = useRef(new THREE.Vector3())
+  const V_DIR = useRef(new THREE.Vector3())
+  const V_STEP = useRef(new THREE.Vector3())
+  const V_MB1 = useRef(new THREE.Vector3())
+
   const SQ1 = useRef(false)
   const MK1 = useRef<{ mesh: THREE.Group; collected: boolean }[]>([])
   const { camera } = useThree()
@@ -40,9 +54,10 @@ export default function MX1({ FX1, KZR1, CJR1, SD1 }: { FX1: THREE.Vector3, KZR1
   useFrame((state, delta) => {
     if (!XR1.current) return
 
+    // 随机刷新主角和5个缩小版面具（仅执行一次）
     if (!SQ1.current && CJR1.current && M3.scene) {
-      const rx = (Math.random() - 0.5) * 230
-      const rz = (Math.random() - 0.5) * 230
+      const rx = (Math.random() - 0.5) * 220
+      const rz = (Math.random() - 0.5) * 220
       XR1.current.position.set(rx, 20, rz)
       YC2.current.set(XR1.current.position, YD1.current)
       YC2.current.far = 40
@@ -59,9 +74,13 @@ export default function MX1({ FX1, KZR1, CJR1, SD1 }: { FX1: THREE.Vector3, KZR1
 
       const arr = []
       for (let i = 0; i < 5; i++) {
-        const mx = (Math.random() - 0.5) * 230
-        const mz = (Math.random() - 0.5) * 230
+        const mx = (Math.random() - 0.5) * 220
+        const mz = (Math.random() - 0.5) * 220
         const clone = M3.scene.clone()
+        
+        // 缩放面具模型至 0.15，使其更小更精致
+        clone.scale.set(0.15, 0.15, 0.15)
+
         clone.traverse(c => {
           if (c instanceof THREE.Mesh) {
             c.material = new THREE.MeshStandardMaterial({
@@ -78,7 +97,7 @@ export default function MX1({ FX1, KZR1, CJR1, SD1 }: { FX1: THREE.Vector3, KZR1
         YC2.current.set(W3.current, YD1.current)
         YC2.current.far = 40
         const JZ_M = YC2.current.intersectObject(CJR1.current, true)
-        const my = JZ_M.length > 0 ? JZ_M[0].point.y + 0.5 : 0.5
+        const my = JZ_M.length > 0 ? JZ_M[0].point.y + 0.3 : 0.3
         clone.position.set(mx, my, mz)
         if (MKR1.current) {
           MKR1.current.add(clone)
@@ -89,9 +108,14 @@ export default function MX1({ FX1, KZR1, CJR1, SD1 }: { FX1: THREE.Vector3, KZR1
       SQ1.current = true
     }
     
+    // 面具自转、手电筒判定、靠近收集
     if (SQ1.current && MK1.current.length > 0) {
+      let changed = false
+      let activeCount = 0
+
       MK1.current.forEach(m => {
         if (m.collected) return
+        activeCount++
         m.mesh.rotation.y += delta * 1.5
         const dist = XR1.current!.position.distanceTo(m.mesh.position)
         
@@ -116,29 +140,37 @@ export default function MX1({ FX1, KZR1, CJR1, SD1 }: { FX1: THREE.Vector3, KZR1
           }
         })
 
-        if (dist < 1.6) {
+        // 调整收集碰撞体积：面具变小后，判定距离缩紧到 1.2
+        if (dist < 1.2) {
           m.collected = true
           m.mesh.visible = false
           if (MKR1.current) {
             MKR1.current.remove(m.mesh)
           }
+          changed = true
         }
       })
+
+      if (changed) {
+        setMJCount(5 - (activeCount - 1))
+      }
     }
 
-    if (FX1.length() > 0) {
+    // 主角移动控制逻辑（全无内存碎片版，0 卡顿产生）
+    if (FX1.lengthSq() > 0) {
       const angle = Math.atan2(camera.position.x - XR1.current.position.x, camera.position.z - XR1.current.position.z)
-      const dir = FX1.clone().applyAxisAngle(W4.current, angle).normalize()
-      const step = dir.clone().multiplyScalar(delta * 4)
-      const MB1 = XR1.current.position.clone().add(step)
+      V_DIR.current.copy(FX1).applyAxisAngle(W4.current, angle).normalize()
+      V_STEP.current.copy(V_DIR.current).multiplyScalar(delta * 4)
+      V_MB1.current.copy(XR1.current.position).add(V_STEP.current)
       
-      if (Math.abs(MB1.x) < 127 && Math.abs(MB1.z) < 127) {
+      // 127 绝对对称空气墙
+      if (Math.abs(V_MB1.current.x) < 127 && Math.abs(V_MB1.current.z) < 127) {
         let KY1 = true
         let ND1 = XR1.current.position.y
 
         if (CJR1.current) {
           W1.current.copy(XR1.current.position).add(W2.current.set(0, 0.45, 0))
-          YC1.current.set(W1.current, dir)
+          YC1.current.set(W1.current, V_DIR.current)
           YC1.current.far = 0.6
           const JZ1 = YC1.current.intersectObject(CJR1.current, true)
           if (JZ1.length > 0) {
@@ -146,7 +178,7 @@ export default function MX1({ FX1, KZR1, CJR1, SD1 }: { FX1: THREE.Vector3, KZR1
           }
 
           if (KY1) {
-            W3.current.copy(MB1).add(W2.current.set(0, 3, 0))
+            W3.current.copy(V_MB1.current).add(W2.current.set(0, 3, 0))
             YC2.current.set(W3.current, YD1.current)
             YC2.current.far = 6
             const JZ2 = YC2.current.intersectObject(CJR1.current, true)
@@ -164,15 +196,16 @@ export default function MX1({ FX1, KZR1, CJR1, SD1 }: { FX1: THREE.Vector3, KZR1
         }
 
         if (KY1) {
-          XR1.current.position.copy(MB1)
+          XR1.current.position.copy(V_MB1.current)
           XR1.current.position.y = ND1
-          camera.position.add(step)
+          camera.position.add(V_STEP.current)
           if (KZR1.current) {
             KZR1.current.target.copy(XR1.current.position).add(W2.current.set(0, 1.3, 0))
           }
         }
       }
-      XR1.current.lookAt(XR1.current.position.clone().add(dir))
+      W1.current.copy(XR1.current.position).add(V_DIR.current)
+      XR1.current.lookAt(W1.current)
     }
 
     if (KZR1.current) {
