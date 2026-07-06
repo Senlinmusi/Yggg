@@ -55,7 +55,7 @@ function YX2() {
     e.currentTarget.setPointerCapture(e.pointerId)
     const r = e.currentTarget.getBoundingClientRect()
     const y = (e.clientY - r.top) / r.height
-    SJ1(Math.max(0, Math.min(1, y)))
+    SJ1(Math.max(0, Math.min(1, y)) || 0.001)
   }
 
   const CZ4 = (e: React.PointerEvent) => {
@@ -63,7 +63,7 @@ function YX2() {
     e.currentTarget.setPointerCapture(e.pointerId)
     const r = e.currentTarget.getBoundingClientRect()
     const x = (e.clientX - r.left) / r.width
-    SJ2(Math.max(0, Math.min(1, x)))
+    SJ2(Math.max(0, Math.min(1, x)) || 0.001)
   }
 
   const CZ5 = (e: React.PointerEvent) => {
@@ -71,14 +71,14 @@ function YX2() {
     SSD1(p => !p)
   }
 
-  const angleY = Math.PI / 12 + JD1 * (Math.PI / 3)
-  const angleX = (JD2 * Math.PI * 2)
+  const angleY = Math.PI / 6 + JD1 * (Math.PI / 3)
+  const angleX = -(JD2 * Math.PI * 2)
 
   return (
     <div className="flex items-center justify-center w-screen h-screen bg-[#f0f0f0]">
       <div className="relative w-full h-full max-w-[360px] max-h-[640px] aspect-[9/16] bg-[#050508] shadow-lg overflow-hidden cursor-pointer">
         <Canvas 
-          camera={{ position: [0, 5, -5], fov: 45 }}
+          camera={{ position: [0, 5, -6], fov: 45 }}
           gl={{ antialias: false, powerPreference: 'high-performance', depth: true }}
           dpr={1}
         >

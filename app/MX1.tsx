@@ -10,8 +10,8 @@ export default function MX1({ FX1, KZR1, CJR1, SD1 }: { FX1: THREE.Vector3, KZR1
   const { actions: A1 } = useAnimations(M1.animations, M1.scene)
   const { actions: A2 } = useAnimations(M2.animations, M2.scene)
   const XR1 = useRef<THREE.Group>(null)
+  const YC1 = useRef(new THREE.Raycaster())
   const YC2 = useRef(new THREE.Raycaster())
-  const YC3 = useRef(new THREE.Raycaster())
   const YD1 = useRef(new THREE.Vector3(0, -1, 0))
   const { camera } = useThree()
 
@@ -44,25 +44,27 @@ export default function MX1({ FX1, KZR1, CJR1, SD1 }: { FX1: THREE.Vector3, KZR1
         let ND1 = XR1.current.position.y
 
         if (CJR1.current) {
-          YC2.current.set(MB1.clone().add(new THREE.Vector3(0, 3, 0)), YD1.current)
-          YC2.current.far = 6
-          const JZ2 = YC2.current.intersectObjects(CJR1.current.children, true)
-          if (JZ2.length > 0) {
-            const GD1 = JZ2[0].point.y
-            if (GD1 - XR1.current.position.y > 0.4) {
-              KY1 = false
-            } else {
-              ND1 = GD1
-            }
-          } else {
+          YC1.current.set(XR1.current.position.clone().add(new THREE.Vector3(0, 0.45, 0)), dir)
+          YC1.current.far = 0.6
+          const JZ1 = YC1.current.intersectObjects(CJR1.current.children, true)
+          if (JZ1.length > 0) {
             KY1 = false
           }
 
-          YC3.current.set(XR1.current.position.clone().add(new THREE.Vector3(0, 0.6, 0)), dir)
-          YC3.current.far = 0.6
-          const JZ3 = YC3.current.intersectObjects(CJR1.current.children, true)
-          if (JZ3.length > 0) {
-            KY1 = false
+          if (KY1) {
+            YC2.current.set(MB1.clone().add(new THREE.Vector3(0, 3, 0)), YD1.current)
+            YC2.current.far = 6
+            const JZ2 = YC2.current.intersectObjects(CJR1.current.children, true)
+            if (JZ2.length > 0) {
+              const GD1 = JZ2[0].point.y
+              if (GD1 - XR1.current.position.y > 0.4) {
+                KY1 = false
+              } else {
+                ND1 = GD1
+              }
+            } else {
+              KY1 = false
+            }
           }
         }
 
