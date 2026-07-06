@@ -11,6 +11,7 @@ export default function MX1({ FX1, KZR1, CJR1, SD1 }: { FX1: THREE.Vector3, KZR1
   const { actions: A2 } = useAnimations(M2.animations, M2.scene)
   const XR1 = useRef<THREE.Group>(null)
   const YC2 = useRef(new THREE.Raycaster())
+  const YC3 = useRef(new THREE.Raycaster())
   const YD1 = useRef(new THREE.Vector3(0, -1, 0))
   const { camera } = useThree()
 
@@ -56,6 +57,13 @@ export default function MX1({ FX1, KZR1, CJR1, SD1 }: { FX1: THREE.Vector3, KZR1
           } else {
             KY1 = false
           }
+
+          YC3.current.set(XR1.current.position.clone().add(new THREE.Vector3(0, 0.6, 0)), dir)
+          YC3.current.far = 0.6
+          const JZ3 = YC3.current.intersectObjects(CJR1.current.children, true)
+          if (JZ3.length > 0) {
+            KY1 = false
+          }
         }
 
         if (KY1) {
@@ -63,7 +71,7 @@ export default function MX1({ FX1, KZR1, CJR1, SD1 }: { FX1: THREE.Vector3, KZR1
           XR1.current.position.y = ND1
           camera.position.add(step)
           if (KZR1.current) {
-            KZR1.current.target.copy(XR1.current.position).add(new THREE.Vector3(0, 1, 0))
+            KZR1.current.target.copy(XR1.current.position).add(new THREE.Vector3(0, 2.0, 0))
           }
         }
       }

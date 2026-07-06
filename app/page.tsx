@@ -71,14 +71,14 @@ function YX2() {
     SSD1(p => !p)
   }
 
-  const angleY = Math.PI / 6 + JD1 * (Math.PI / 3)
-  const angleX = Math.PI - (JD2 * Math.PI * 2)
+  const angleY = Math.PI / 12 + JD1 * (Math.PI / 3)
+  const angleX = (JD2 * Math.PI * 2)
 
   return (
     <div className="flex items-center justify-center w-screen h-screen bg-[#f0f0f0]">
       <div className="relative w-full h-full max-w-[360px] max-h-[640px] aspect-[9/16] bg-[#050508] shadow-lg overflow-hidden cursor-pointer">
         <Canvas 
-          camera={{ position: [0, 3.5, -5], fov: 45 }}
+          camera={{ position: [0, 5, -5], fov: 45 }}
           gl={{ antialias: false, powerPreference: 'high-performance', depth: true }}
           dpr={1}
         >
@@ -92,7 +92,7 @@ function YX2() {
           <MX1 FX1={FX1} KZR1={KZR1} CJR1={CJR1} SD1={SD1} />
           <OrbitControls 
             ref={KZR1} 
-            target={[0, 1.5, 0]}
+            target={[0, 2.0, 0]}
             enablePan={false} 
             enableZoom={true}
             minPolarAngle={angleY} 
