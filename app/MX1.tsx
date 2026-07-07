@@ -226,22 +226,6 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1, FG1, FF1, monsterDisabl
 
         m.mesh.visible = glow || FG1
 
-        m.mesh.traverse(c => {
-          if (c instanceof THREE.Mesh && c.material) {
-            const mat = c.material as THREE.MeshStandardMaterial
-            if (FG1) {
-              mat.emissive.setHex(0xffffff)
-              mat.emissiveIntensity = 3.5
-            } else if (glow) {
-              mat.emissive.setHex(0xffffff)
-              mat.emissiveIntensity = 1.2
-            } else {
-              mat.emissive.setHex(0x000000)
-              mat.emissiveIntensity = 0.0
-            }
-          }
-        })
-
         if (dist < 1.2) {
           m.collected = true
           m.mesh.visible = false
@@ -272,21 +256,29 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1, FG1, FF1, monsterDisabl
       const isFrozen = FF1 || isLookedAt
 
       if (!isFrozen) {
-        if (distToPlayer < 35) {
-          MS_STATE.current = 'chase'
-        } else if (distToPlayer > 48) {
-          MS_STATE.current = 'patrol'
+        const monsterForward = new THREE.Vector3(0, 0, 1).applyQuaternion(MSR1.current.quaternion).normalize()
+        const dirToPlayer = new THREE.Vector3().copy(XR1.current.position).sub(MSR1.current.position).normalize()
+        const monsterSeesPlayer = monsterForward.dot(dirToPlayer) > 0.4
+
+        if (MS_STATE.current === 'patrol') {
+          if (distToPlayer < 35 && monsterSeesPlayer) {
+            MS_STATE.current = 'chase'
+          }
+        } else if (MS_STATE.current === 'chase') {
+          if (distToPlayer > 48) {
+            MS_STATE.current = 'patrol'
+          }
         }
 
-        let speed = delta * 4.6
+        let speed = MS_STATE.current === 'chase' ? delta * 4.6 : delta * 1.8
         let targetPos = W1.current
 
         if (MS_STATE.current === 'chase') {
           targetPos.copy(XR1.current.position)
         } else {
           if (MSR1.current.position.distanceTo(MS_PATROL_TARGET.current) < 2) {
-            const rx = (Math.random() - 0.5) * 50
-            const rz = (Math.random() - 0.5) * 50
+            const rx = (Math.random() - 0.5) * 40
+            const rz = (Math.random() - 0.5) * 40
             MS_PATROL_TARGET.current.copy(MSR1.current.position).add(new THREE.Vector3(rx, 0, rz))
           }
           targetPos.copy(MS_PATROL_TARGET.current)
@@ -306,7 +298,9 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1, FG1, FF1, monsterDisabl
             if (hits.length > 0) {
               canMove = false
               if (MS_STATE.current === 'patrol') {
-                MS_PATROL_TARGET.current.copy(MSR1.current.position)
+                const rx = (Math.random() - 0.5) * 40
+                const rz = (Math.random() - 0.5) * 40
+                MS_PATROL_TARGET.current.copy(MSR1.current.position).add(new THREE.Vector3(rx, 0, rz))
               }
             }
           }
@@ -333,7 +327,7 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1, FG1, FF1, monsterDisabl
         }
       }
 
-      if (distToPlayer < 1.3) {
+      if (distToPlayer < 1.3 && !isJokerState) {
         onGameOver()
       }
     }

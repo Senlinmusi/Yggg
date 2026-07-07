@@ -225,7 +225,7 @@ function YX2() {
           <div className="flex flex-col items-center gap-3">
             <div className="flex gap-2">
               <div 
-                className="w-12 h-12 bg-white/5 backdrop-blur-md rounded-full border border-white/10 flex items-center justify-center text-white text-base font-sans font-medium select-none cursor-pointer active:scale-95 transition-transform shadow-lg shrink-0"
+                className="w-12 h-12 bg-white/5 backdrop-blur-md rounded-full border border-white/10 flex flex-col items-center justify-center text-white text-xs font-sans font-medium select-none cursor-pointer active:scale-95 transition-transform shadow-lg shrink-0"
                 onPointerDown={CZ5}
                 style={{ backgroundColor: SD1 ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.05)' }}
               >
