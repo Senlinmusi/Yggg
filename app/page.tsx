@@ -1,7 +1,7 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { Plane, OrbitControls, useGLTF } from '@react-three/drei'
+import { Plane, OrbitControls, useGLTF, useProgress } from '@react-three/drei'
 import dynamic from 'next/dynamic'
 import MX1 from './MX1'
 import * as THREE from 'three'
@@ -23,11 +23,13 @@ function YX2() {
   const [monsterDisabled, setMonsterDisabled] = useState(false)
   const debugKeys = useRef<string[]>([])
 
+  const { active: JZ_ZT, progress: JZ_JD } = useProgress()
+
   const KZR1 = useRef<any>(null)
   const CJ1 = useGLTF('/cjjj.glb')
   const CJR1 = useRef<THREE.Group>(null)
 
-  const checkDebug = (key: string) => {
+  const JC1 = (key: string) => {
     debugKeys.current.push(key)
     if (debugKeys.current.length > 6) {
       debugKeys.current.shift()
@@ -132,14 +134,14 @@ function YX2() {
   const CZ5 = (e: React.PointerEvent) => {
     e.preventDefault()
     if (isGameOver) return
-    checkDebug('K')
+    JC1('K')
     SSD1(p => !p)
   }
 
   const CZ6 = (e: React.PointerEvent) => {
     e.preventDefault()
     if (isGameOver) return
-    checkDebug('M')
+    JC1('M')
     if (CD1 > 0) return
     SFG1(true)
     SCD1(60)
@@ -151,7 +153,7 @@ function YX2() {
   const CZ7 = (e: React.PointerEvent) => {
     e.preventDefault()
     if (isGameOver) return
-    checkDebug('F')
+    JC1('F')
     if (FT1 > 0) return
     SFF1(true)
     SFT1(15)
@@ -163,6 +165,18 @@ function YX2() {
   return (
     <div className="flex items-center justify-center w-screen h-screen bg-[#f0f0f0]">
       <div className="relative w-full h-full max-w-[360px] max-h-[640px] aspect-[9/16] bg-[#050508] shadow-lg overflow-hidden cursor-pointer">
+        {JZ_ZT && (
+          <div className="absolute inset-0 bg-[#050508] z-[200] flex flex-col items-center justify-center select-none">
+            <div className="flex flex-col items-center gap-4">
+              <h2 className="text-white text-xs font-sans tracking-[0.2em] font-light uppercase opacity-70">LOADING</h2>
+              <div className="w-32 h-[1px] bg-white/10 relative overflow-hidden rounded-full">
+                <div className="absolute top-0 left-0 h-full bg-white/60 transition-all duration-300 ease-out" style={{ width: `${JZ_JD}%` }} />
+              </div>
+              <span className="text-[10px] text-white/30 font-mono tracking-wider">{Math.round(JZ_JD)}%</span>
+            </div>
+          </div>
+        )}
+
         <div className="absolute top-6 left-6 bg-white/5 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 text-white font-mono text-xs tracking-wider z-50 select-none">
           {JS1}
         </div>
@@ -277,7 +291,7 @@ function YX2() {
         </div>
 
         {isGameOver && (
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center animate-fade-in select-none">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center select-none">
             <h1 className="text-white text-3xl font-mono font-bold tracking-widest drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
               Game Over
             </h1>

@@ -47,7 +47,7 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1, FG1, FF1, monsterDisabl
   const V_MB1 = useRef(new THREE.Vector3())
 
   const SQ1 = useRef(false)
-  const MK1 = useRef<{ mesh: THREE.Group; collected: boolean }[]>([])
+  const MK1 = useRef<{ mesh: THREE.Group; collected: boolean; X_ZT?: number }[]>([])
   const { camera } = useThree()
 
   const PL1 = useRef(0)
@@ -225,6 +225,26 @@ export default function MX1({ FX1, KZR1, CJR1, SD1, SS1, FG1, FF1, monsterDisabl
         }
 
         m.mesh.visible = glow || FG1
+
+        const cacheKey = FG1 ? 2 : (glow ? 1 : 0)
+        if (m.X_ZT !== cacheKey) {
+          m.X_ZT = cacheKey
+          m.mesh.traverse(c => {
+            if (c instanceof THREE.Mesh && c.material) {
+              const mat = c.material as THREE.MeshStandardMaterial
+              if (FG1) {
+                mat.emissive.setHex(0xffffff)
+                mat.emissiveIntensity = 3.5
+              } else if (glow) {
+                mat.emissive.setHex(0xffffff)
+                mat.emissiveIntensity = 1.2
+              } else {
+                mat.emissive.setHex(0x000000)
+                mat.emissiveIntensity = 0.0
+              }
+            }
+          })
+        }
 
         if (dist < 1.2) {
           m.collected = true
